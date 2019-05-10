@@ -13,8 +13,8 @@ from flask import Flask, render_template
 from io import BytesIO
 import os
 import numpy as np
-#from config import *
-#from load_data import preprocess
+from config import *
+from load_data import preprocess
 from keras.models import model_from_json
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array
 
@@ -39,7 +39,7 @@ def telemetry(sid, data):
     speed = data["speed"]
     # The current image from the center camera of the car
     imgString = data["image"]
-    '''image = Image.open(BytesIO(base64.b64decode(imgString)))
+    image = Image.open(BytesIO(base64.b64decode(imgString)))
 
     # frames incoming from the simulator are in RGB format
     image_array = cv2.cvtColor(np.asarray(image), code=cv2.COLOR_RGB2BGR)
@@ -48,10 +48,10 @@ def telemetry(sid, data):
     image_array = preprocess(frame_bgr=image_array)
 
     # add singleton batch dimension
-    image_array = np.expand_dims(image_array, axis=0)
+    image_array = np.expand_dims(image_array, axis=0) # Shape (N, H, W, C)
 
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
-    steering_angle = float(model.predict(image_array, batch_size=1))'''
+    #steering_angle = float(model.predict(image_array, batch_size=1))
 
     # HARDCODED FOR TESTING
     steering_angle = 0.3

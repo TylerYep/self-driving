@@ -6,7 +6,6 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import random
-import keras.backend as K
 from config import *
 
 
@@ -20,8 +19,9 @@ def split_train_val(csv_driving_data, test_size=0.2):
         reader = csv.reader(f)
         driving_data = [row for row in reader][1:]
 
+    print(len(driving_data))
     train_data, val_data = train_test_split(driving_data, test_size=test_size, random_state=1)
-
+    print(len(train_data), len(val_data))
     return train_data, val_data
 
 
@@ -43,8 +43,8 @@ def preprocess(frame_bgr, verbose=False):
     frame_resized = cv2.resize(frame_cropped, dsize=(w, h))
 
     # eventually change color space
-    if CONFIG['input_channels'] == 1:
-        frame_resized = np.expand_dims(cv2.cvtColor(frame_resized, cv2.COLOR_BGR2YUV)[:, :, 0], 2)
+    '''if CONFIG['input_channels'] == 1:
+        frame_resized = np.expand_dims(cv2.cvtColor(frame_resized, cv2.COLOR_BGR2YUV)[:, :, 0], 2)'''
 
     if verbose:
         plt.figure(1), plt.imshow(cv2.cvtColor(frame_bgr, code=cv2.COLOR_BGR2RGB))
@@ -81,7 +81,7 @@ def load_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', augmen
     loaded_elements = 0
     while loaded_elements < batchsize:
 
-        ct_path, lt_path, rt_path, steer, throttle, brake, speed = shuffled_data.pop()
+        ct_path, lt_path, rt_path, steer, throttle, brake, speed = shuffled_data.pop() # See data/driving_log.csv
 
         # cast strings to float32
         steer = np.float32(steer)
@@ -127,10 +127,7 @@ def load_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', augmen
             y_steer[loaded_elements] = steer
             loaded_elements += 1
 
-    if K.backend() == 'theano':
-        X = X.transpose(0, 3, 1, 2)
-
-    return X, y_steer
+    return X, y_steer # Shape (N, H, W, C) (N,)
 
 
 def generate_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', augment_data=True, bias=0.5):
