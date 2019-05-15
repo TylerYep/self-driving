@@ -8,9 +8,10 @@ import numpy as np
 import random
 import cv2
 
-
-class Dataset(data.Dataset):
-    def __init__(self, data, augment_data=True, data_dir='data'):
+class DrivingDataset(data.Dataset):
+    def __init__(self, csv_driving_data, augment_data=True, data_dir='data'):
+        with open(csv_driving_data, 'r') as f:
+            data = [row for row in csv.reader(f)][1:]
         self.data = data
         self.augment_data = augment_data
         self.data_dir = 'data'
@@ -20,9 +21,6 @@ class Dataset(data.Dataset):
 
     def __getitem__(self, index):
         h, w, c = CONFIG['input_height'], CONFIG['input_width'], CONFIG['input_channels']
-        #X = torch.zeros(shape=(h, w, c), dtype=torch.float32)
-        #y_steer = torch.zeros(shape=(1,), dtype=torch.float32)
-        #y_throttle = torch.zeros(shape=(1,), dtype=torch.float32) # UNUSED
         ct_path, lt_path, rt_path, steer, throttle, brake, speed = self.data[index]
 
         steer = np.float32(steer)
@@ -40,8 +38,7 @@ class Dataset(data.Dataset):
             steer = steer - delta_correction
 
         if self.augment_data:
-
-            # mirror images with chance=0.5
+            # mirror images with prob=0.5
             if random.choice([True, False]):
                 frame = frame[:, ::-1, :]
                 steer *= -1.
@@ -55,16 +52,17 @@ class Dataset(data.Dataset):
                 frame[:, :, 2] *= random.uniform(CONFIG['augmentation_value_min'], CONFIG['augmentation_value_max'])
                 frame[:, :, 2] = np.clip(frame[:, :, 2], a_min=0, a_max=255)
                 frame = cv2.cvtColor(frame, code=cv2.COLOR_HSV2BGR)
-        X = torch.as_tensor(frame)
-        y_steer = torch.as_tensor(steer)
+        X = torch.as_tensor(frame) # shape (h, w, c)
+        y_steer = torch.as_tensor(steer) # shape (1,)
         return X, y_steer
+
 
 def main():
     csv_driving_data = 'data/driving_log.csv'
     with open(csv_driving_data, 'r') as f:
         reader = csv.reader(f)
         driving_data = [row for row in reader][1:]
-    data = Dataset(driving_data)
+    data = DrivingDataset(driving_data)
     print(len(data))
     X, y_steer = data[3]
     print(X.shape, type(X))

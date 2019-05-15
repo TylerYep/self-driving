@@ -15,7 +15,7 @@ import os
 import numpy as np
 from config import *
 from load_data import preprocess
-from keras.models import model_from_json
+# from keras.models import model_from_json
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array
 
 # Fix error with Keras and TensorFlow
@@ -51,7 +51,7 @@ def telemetry(sid, data):
     image_array = np.expand_dims(image_array, axis=0) # Shape (N, H, W, C)
 
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
-    #steering_angle = float(model.predict(image_array, batch_size=1))
+    steering_angle = float(model(image_array, batch_size=1))
 
     # HARDCODED FOR TESTING
     steering_angle = 0.3
@@ -80,18 +80,16 @@ if __name__ == '__main__':
     #from keras.models import model_from_json
 
     # load model from json
-    '''json_path ='pretrained/model.json'
-    with open(json_path) as jfile:
-        model = model_from_json(jfile.read())
+    # json_path ='pretrained/model.json'
+    # with open(json_path) as jfile:
+    #     model = model_from_json(jfile.read())
 
     # load model weights
     # weights_path = os.path.join('checkpoints', os.listdir('checkpoints')[-1])
-    weights_path = 'pretrained/model.hdf5'
-    print('Loading weights: {}'.format(weights_path))
-    model.load_weights(weights_path)
-
-    # compile the model
-    model.compile("adam", "mse")'''
+    model = NaiveConditionedCNN()
+    print('Loading weights: {}'.format('save/test_weights.pth'))
+    model.load_state_dict(torch.load('save/test_weights.pth'))
+    model.eval()
 
     # wrap Flask application with engineio's middleware
     app = socketio.Middleware(sio, app)

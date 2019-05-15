@@ -19,9 +19,7 @@ def split_train_val(csv_driving_data, test_size=0.2):
         reader = csv.reader(f)
         driving_data = [row for row in reader][1:]
 
-    print(len(driving_data))
     train_data, val_data = train_test_split(driving_data, test_size=test_size, random_state=1)
-    print(len(train_data), len(val_data))
     return train_data, val_data
 
 
