@@ -7,6 +7,8 @@ import socketio
 import eventlet
 import eventlet.wsgi
 import time
+import torch
+
 from PIL import Image
 from PIL import ImageOps
 from flask import Flask, render_template
@@ -15,13 +17,8 @@ import os
 import numpy as np
 from config import *
 from load_data import preprocess
-# from keras.models import model_from_json
-from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array
 
-# Fix error with Keras and TensorFlow
-#import tensorflow as tf
-
-#tf.python.control_flow_ops = tf
+from models import NaiveConditionedCNN
 
 sio = socketio.Server()
 app = Flask(__name__)
@@ -51,10 +48,7 @@ def telemetry(sid, data):
     image_array = np.expand_dims(image_array, axis=0) # Shape (N, H, W, C)
 
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
-    steering_angle = float(model(image_array, batch_size=1))
-
-    # HARDCODED FOR TESTING
-    steering_angle = 0.3
+    steering_angle = float(model(torch.tensor(image_array)))
 
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
     throttle = 0.28
@@ -76,14 +70,6 @@ def send_control(steering_angle, throttle):
 
 
 if __name__ == '__main__':
-
-    #from keras.models import model_from_json
-
-    # load model from json
-    # json_path ='pretrained/model.json'
-    # with open(json_path) as jfile:
-    #     model = model_from_json(jfile.read())
-
     # load model weights
     # weights_path = os.path.join('checkpoints', os.listdir('checkpoints')[-1])
     model = NaiveConditionedCNN()

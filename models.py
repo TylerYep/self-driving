@@ -16,7 +16,7 @@ class NaiveConditionedCNN(nn.Module):
 		self.conv4 = Conv2dReluDropout(filter_size=3, pad=0, stride=1, num_filters=64, in_channels=48, drop_prob=0.2)
 		self.conv5 = Conv2dReluDropout(filter_size=3, pad=0, stride=1, num_filters=64, in_channels=64, drop_prob=0.2)
 
-		self.FC1 = FC(input_size=64 * 1 * 18, output_size = 100, drop_prob=0.5) # See output of self.conv5
+		self.FC1 = FC(input_size=64*1*18, output_size=100, drop_prob=0.5) # See output of self.conv5
 		self.FC2 = FC(input_size=100, output_size=50, drop_prob=0.5)
 		self.FC3 = nn.Linear(50, 10)
 		self.FC4 = nn.Linear(10, 1)
@@ -26,7 +26,7 @@ class NaiveConditionedCNN(nn.Module):
 		param x: shape (N, 66, 200, 3) (N, H, W, C)
 		'''
 		N, H, W, C = x.shape
-		x = x.view(N, C, H, W)
+		x = x.reshape((N, C, H, W))
 		# We omit the normalization layer proposed in Bojarski et al.
 		x = self.conv1(x)
 		x = self.conv2(x)
@@ -35,7 +35,7 @@ class NaiveConditionedCNN(nn.Module):
 		x = self.conv5(x) # output shape (N, 64, 1, 18)
 
 		# Flatten layer before FC layers
-		x = x.view(N, -1)
+		x = x.reshape((N, -1))
 
 		x = self.FC1(x)
 		x = self.FC2(x)
