@@ -12,13 +12,12 @@ dependencies:
     - scikit-learn
     - scikit-image
     - scipy
-    - h5py
+    - cv2
     - eventlet
     - flask-socketio
     - pytorch=1.0.0
     - tensorboard
     - pandas
-    - ffmpeg
     - imageio
     - pyqt=4.11.4
     - pip
