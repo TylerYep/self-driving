@@ -19,12 +19,18 @@ import const
 from load_data import preprocess
 
 from models import NaiveConditionedCNN
+from resnet import PretrainedResNet
+import torchvision.transforms as transforms
 
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
 prev_image_array = None
 
+# TODO: move to const
+shouldNormalize = False
+normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
 
 @sio.on('telemetry')
 def telemetry(sid, data):
@@ -47,8 +53,16 @@ def telemetry(sid, data):
     # perform preprocessing (crop, resize etc.)
     image_array = preprocess(frame_bgr=image_array)
 
+    image_array = torch.as_tensor(image_array)
+    if shouldNormalize:
+        h, w, c = image_array.shape
+        image_array = image_array.reshape((c, h, w)) # reshaped for normalize function
+        image_array = normalize(image_array)
+        image_array = image_array.reshape((h, w, c)) # reshaped back to expected shape
+
     # add singleton batch dimension
-    image_array = np.expand_dims(image_array, axis=0) # Shape (N, H, W, C)
+    #image_array = np.expand_dims(image_array, axis=0) # Shape (N, H, W, C)
+    image_array = torch.unsqueeze(image_array, dim=0) # Shape(N, H, W, C)
 
     # Create measurements with speed and one-hot high-level control
     measurements = np.zeros((4, 1)) # 3 index is for speed, 0-2 index is one-hot high-level control
@@ -58,8 +72,8 @@ def telemetry(sid, data):
     measurements = measurements.float()
 
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
-    steering_angle = float(model(torch.tensor(image_array), measurements)) # TODO ADD high_level_control and speed
-
+    #steering_angle = float(model(torch.tensor(image_array), measurements))
+    steering_angle = float(model(image_array, measurements))
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
     throttle = 0.28
     print(steering_angle, throttle, high_level_control)
@@ -83,8 +97,9 @@ if __name__ == '__main__':
     # load model weights
     # weights_path = os.path.join('checkpoints', os.listdir('checkpoints')[-1])
     model = NaiveConditionedCNN()
+    #model = PretrainedResNet()
     print('Loading weights: {}'.format('save/test_weights.pth'))
-    model.load_state_dict(torch.load('save/test_weights_20.pth'))
+    model.load_state_dict(torch.load('save/test_weights_40.pth'))
     model.eval()
 
     # wrap Flask application with engineio's middleware

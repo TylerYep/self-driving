@@ -9,10 +9,16 @@ import pandas as pd
 import random
 import cv2
 
+import torchvision.transforms as transforms
+
 class DrivingDataset(data.Dataset):
-    def __init__(self, driving_log_csv, augment_data=True):
+    def __init__(self, driving_log_csv, augment_data=True, pretrain_normalize=False):
         self.data = pd.read_csv(driving_log_csv)
         self.augment_data = augment_data
+        self.pretrain_normalize = pretrain_normalize
+        if self.pretrain_normalize:
+            self.normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                 std=[0.229, 0.224, 0.225])
 
     def __len__(self):
         return len(self.data)
@@ -55,10 +61,14 @@ class DrivingDataset(data.Dataset):
                 frame = cv2.cvtColor(frame, code=cv2.COLOR_HSV2BGR)
         X = torch.as_tensor(frame) # shape (h, w, c)
         y_steer = torch.as_tensor(steer).unsqueeze(0) # shape (1, )
-        measurements = torch.zeros((4, 1)) # 0 index is for speed, 1-3 index is one-hot high-level control
+        measurements = np.zeros((4, 1)) # 0 index is for speed, 1-3 index is one-hot high-level control
         measurements[3] = speed
         measurements[high_level_control] = 1
         measurements = torch.as_tensor(measurements)
+        if self.pretrain_normalize:
+            X = X.reshape((c, h, w)) # reshaped for normalize function
+            X = self.normalize(X)
+            X = X.reshape((h, w, c)) # reshaped back to expected shape
         return X, measurements.float(), y_steer
 
 def main():

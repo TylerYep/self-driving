@@ -12,11 +12,12 @@ import torch.utils.data as data
 import const
 from dataset import DrivingDataset
 from models import NaiveConditionedCNN
+from resnet import PretrainedResNet
 
 from tensorboardX import SummaryWriter
 
 def main():
-    dataset = DrivingDataset(const.DRIVING_LOG_PATH)
+    dataset = DrivingDataset(const.DRIVING_LOG_PATH, pretrain_normalize=False) # Set pretrain_normalize to true when using pretrained models
     print("Dataset length: ", len(dataset))
     dataloaders = {
         'train': data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=8), # TODO 32 on gpu
@@ -25,6 +26,7 @@ def main():
     }
 
     model = NaiveConditionedCNN()
+    #model = PretrainedResNet() # set pretrain_normalize=True in DrivingDataset
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
