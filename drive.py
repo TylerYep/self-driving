@@ -15,7 +15,7 @@ from flask import Flask, render_template
 from io import BytesIO
 import os
 import numpy as np
-from config import *
+import const
 from load_data import preprocess
 
 from models import NaiveConditionedCNN

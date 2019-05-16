@@ -9,13 +9,12 @@ from torch.nn import functional as F
 import torch.optim as optim
 import torch.utils.data as data
 
+import const
 from dataset import DrivingDataset
 from models import NaiveConditionedCNN
 
 def main():
-    csv_driving_data = 'data/driving_log.csv'
-
-    dataset = DrivingDataset(csv_driving_data)
+    dataset = DrivingDataset(const.DRIVING_LOG_PATH)
     dataloaders = {
         'train': data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=8), # TODO 32 on gpu
         'dev': data.DataLoader(dataset, batch_size=4, shuffle=False, num_workers=8),
@@ -26,13 +25,13 @@ def main():
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
-    model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=1)
+    model_trained = train_model(dataloaders, model, criterion, optimizer)
 
     # Save
     torch.save(model_trained.state_dict(), 'save/test_weights.pth')
     print(model_trained)
 
-    
+
 
 # Train
 def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):

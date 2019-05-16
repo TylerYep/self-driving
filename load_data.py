@@ -6,8 +6,7 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import random
-from config import *
-
+import const
 
 def split_train_val(csv_driving_data, test_size=0.2):
     """
@@ -32,16 +31,16 @@ def preprocess(frame_bgr, verbose=False):
     :return:
     """
     # set training images resized shape
-    h, w = CONFIG['input_height'], CONFIG['input_width']
+    h, w = const.CONFIG['input_height'], const.CONFIG['input_width']
 
     # crop image (remove useless information)
-    frame_cropped = frame_bgr[CONFIG['crop_height'], :, :]
+    frame_cropped = frame_bgr[const.CONFIG['crop_height'], :, :]
 
     # resize image
     frame_resized = cv2.resize(frame_cropped, dsize=(w, h))
 
     # eventually change color space
-    '''if CONFIG['input_channels'] == 1:
+    '''if const.CONFIG['input_channels'] == 1:
         frame_resized = np.expand_dims(cv2.cvtColor(frame_resized, cv2.COLOR_BGR2YUV)[:, :, 0], 2)'''
 
     if verbose:
@@ -53,7 +52,7 @@ def preprocess(frame_bgr, verbose=False):
     return frame_resized.astype('float32')
 
 
-def load_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', augment_data=True, bias=0.5):
+def load_data_batch(data, batchsize=const.CONFIG['batchsize'], data_dir='data', augment_data=True, bias=0.5):
     """
     Load a batch of driving data from the "data" list.
     A batch of data is constituted by a batch of frames of the training track as well as the corresponding
@@ -66,7 +65,7 @@ def load_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', augmen
     :return: X, Y which are the batch of input frames and steering angles respectively
     """
     # set training images resized shape
-    h, w, c = CONFIG['input_height'], CONFIG['input_width'], CONFIG['input_channels']
+    h, w, c = const.CONFIG['input_height'], const.CONFIG['input_width'], const.CONFIG['input_channels']
 
     # prepare output structures
     X = np.zeros(shape=(batchsize, h, w, c), dtype=np.float32)
@@ -87,7 +86,7 @@ def load_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', augmen
 
         # randomly choose which camera to use among (central, left, right)
         # in case the chosen camera is not the frontal one, adjust steer accordingly
-        delta_correction = CONFIG['delta_correction']
+        delta_correction = const.CONFIG['delta_correction']
         camera = random.choice(['frontal', 'left', 'right'])
         if camera == 'frontal':
             frame = preprocess(cv2.imread(join(data_dir, ct_path.strip())))
@@ -107,12 +106,12 @@ def load_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', augmen
                 steer *= -1.
 
             # perturb slightly steering direction
-            steer += np.random.normal(loc=0, scale=CONFIG['augmentation_steer_sigma'])
+            steer += np.random.normal(loc=0, scale=const.CONFIG['augmentation_steer_sigma'])
 
             # if color images, randomly change brightness
-            if CONFIG['input_channels'] == 3:
+            if const.CONFIG['input_channels'] == 3:
                 frame = cv2.cvtColor(frame, code=cv2.COLOR_BGR2HSV)
-                frame[:, :, 2] *= random.uniform(CONFIG['augmentation_value_min'], CONFIG['augmentation_value_max'])
+                frame[:, :, 2] *= random.uniform(const.CONFIG['augmentation_value_min'], const.CONFIG['augmentation_value_max'])
                 frame[:, :, 2] = np.clip(frame[:, :, 2], a_min=0, a_max=255)
                 frame = cv2.cvtColor(frame, code=cv2.COLOR_HSV2BGR)
 
@@ -128,7 +127,7 @@ def load_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', augmen
     return X, y_steer # Shape (N, H, W, C) (N,)
 
 
-def generate_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', augment_data=True, bias=0.5):
+def generate_data_batch(data, batchsize=const.CONFIG['batchsize'], data_dir='data', augment_data=True, bias=0.5):
     """
     Generator that indefinitely yield batches of training data
     :param data: list of training data in the format provided by Udacity
@@ -139,9 +138,7 @@ def generate_data_batch(data, batchsize=CONFIG['batchsize'], data_dir='data', au
     :return: X, Y which are the batch of input frames and steering angles respectively
     """
     while True:
-
         X, y_steer = load_data_batch(data, batchsize, data_dir, augment_data, bias)
-
         yield X, y_steer
 
 
