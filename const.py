@@ -1,8 +1,15 @@
 """
 Configuration and hyperparameters
 """
-DRIVING_LOG_PATH = 'data/driving_log.csv'
+import torch
+import numpy as np
+np.random.seed(0)
+torch.manual_seed(0)
+
+DATA_PATH = 'data/'
 SAVE_PATH = 'save/'
+DRIVING_LOG_PATH = DATA_PATH + 'driving_log.csv'
+
 
 NVIDIA_H, NVIDIA_W = 66, 200
 
