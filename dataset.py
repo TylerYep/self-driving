@@ -58,13 +58,12 @@ class DrivingDataset(data.Dataset):
         X = torch.as_tensor(frame) # shape (h, w, c)
         y_steer = torch.as_tensor(steer) # shape (1,)
         y_steer = y_steer.unsqueeze(0)
-        measurements = torch.zeros((4, 1)) # 0 index is for speed, 1-3 index is one-hot high-level control
-        measurements[0] = speed
+        measurements = np.zeros((4, 1)) # 3 index is for speed, 0-2 index is one-hot high-level control
+        measurements[3] = speed
         measurements[high_level_control] = 1
-
-        print(measurements)
-        exit()
-
+        measurements = torch.as_tensor(measurements)
+        print(measurements.shape)
+        print(X.shape)
         return X, high_level_control, y_steer
 
 def main():
@@ -72,7 +71,7 @@ def main():
     with open(csv_driving_data, 'r') as f:
         reader = csv.reader(f)
         driving_data = [row for row in reader][1:]
-    data = DrivingDataset(driving_data)
+    data = DrivingDataset(csv_driving_data)
     #print(len(data))
     X, measurements, y_steer = data[3]
     #print(X.shape, type(X))

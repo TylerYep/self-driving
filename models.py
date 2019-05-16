@@ -42,6 +42,7 @@ class NaiveConditionedCNN(nn.Module):
 
         # Flatten layer before FC layers
         x = x.reshape((N, -1))
+        cond_features = cond_features.reshape(N, -1)
 
         x = self.FC1(x)
         x = self.FC2(x)
@@ -90,7 +91,7 @@ class Conv2dReluDropout(nn.Module):
 
 if __name__ == '__main__':
     data = torch.from_numpy(np.zeros((32, 66, 200, 3))).float()
-    cond_features = torch.zeros((32, 4))
+    cond_features = torch.zeros((32, 4, 1))
     model = NaiveConditionedCNN()
     out = model(data, cond_features)
     print(out.shape)
