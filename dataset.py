@@ -55,8 +55,9 @@ class DrivingDataset(data.Dataset):
                 frame = cv2.cvtColor(frame, code=cv2.COLOR_HSV2BGR)
         X = torch.as_tensor(frame) # shape (h, w, c)
         y_steer = torch.as_tensor(steer) # shape (1,)
-        return X, high_level_control, y_steer
+        y_steer = y_steer.unsqueeze(0)
 
+        return X, high_level_control, y_steer
 
 def main():
     csv_driving_data = 'data/driving_log.csv'
