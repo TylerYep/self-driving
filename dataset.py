@@ -14,7 +14,7 @@ class DrivingDataset(data.Dataset):
             data = [row for row in csv.reader(f)][1:]
         self.data = data
         self.augment_data = augment_data
-        self.data_dir = 'data'
+        self.data_dir = data_dir
 
     def __len__(self):
         return len(self.data)
@@ -26,6 +26,8 @@ class DrivingDataset(data.Dataset):
         steer = np.float32(steer)
         throttle = np.float32(throttle)
         high_level_control = np.int32(high_level_control)
+        speed = np.float32(speed)
+
         delta_correction = const.CONFIG['delta_correction']
         camera = random.choice(['frontal', 'left', 'right'])
         if camera == 'frontal':
@@ -56,6 +58,12 @@ class DrivingDataset(data.Dataset):
         X = torch.as_tensor(frame) # shape (h, w, c)
         y_steer = torch.as_tensor(steer) # shape (1,)
         y_steer = y_steer.unsqueeze(0)
+        measurements = torch.zeros((4, 1)) # 0 index is for speed, 1-3 index is one-hot high-level control
+        measurements[0] = speed
+        measurements[high_level_control] = 1
+
+        print(measurements)
+        exit()
 
         return X, high_level_control, y_steer
 
@@ -65,10 +73,10 @@ def main():
         reader = csv.reader(f)
         driving_data = [row for row in reader][1:]
     data = DrivingDataset(driving_data)
-    print(len(data))
-    X, high_level_control, y_steer = data[3]
-    print(X.shape, type(X))
-    print(y_steer.shape, type(y_steer))
+    #print(len(data))
+    X, measurements, y_steer = data[3]
+    #print(X.shape, type(X))
+    #print(y_steer.shape, type(y_steer))
 
 if __name__ == '__main__':
     main()

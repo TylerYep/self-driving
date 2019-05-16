@@ -2,6 +2,7 @@
 Configuration and hyperparameters
 """
 DRIVING_LOG_PATH = 'data/driving_log.csv'
+SAVE_PATH = 'save/'
 
 NVIDIA_H, NVIDIA_W = 66, 200
 

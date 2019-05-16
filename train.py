@@ -13,8 +13,11 @@ import const
 from dataset import DrivingDataset
 from models import NaiveConditionedCNN
 
+from tensorboardX import SummaryWriter
+
 def main():
     dataset = DrivingDataset(const.DRIVING_LOG_PATH)
+    print(len(dataset))
     dataloaders = {
         'train': data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=8), # TODO 32 on gpu
         'dev': data.DataLoader(dataset, batch_size=4, shuffle=False, num_workers=8),
@@ -25,7 +28,7 @@ def main():
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
-    model_trained = train_model(dataloaders, model, criterion, optimizer)
+    model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=50)
 
     # Save
     torch.save(model_trained.state_dict(), 'save/test_weights.pth')
@@ -35,6 +38,9 @@ def main():
 
 # Train
 def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):
+    # Visualization on Tensboard
+    tbx = SummaryWriter(const.SAVE_PATH)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch+1, num_epochs))
@@ -64,8 +70,9 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):
 
                 _, preds = torch.max(outputs, 1)
                 running_loss += loss.item()# * inputs.size(0)
-                print(running_loss)
                 # running_corrects += torch.sum(preds == labels.data)
+            tbx.add_scalar(phase + '/MSE', running_loss, epoch)
+            print(phase + ":", running_loss)
 
             # epoch_loss = running_loss / len(image_datasets[phase])
             # epoch_acc = running_corrects.double() / len(image_datasets[phase])

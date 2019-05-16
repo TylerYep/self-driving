@@ -17,6 +17,7 @@ dependencies:
     - flask-socketio
     - pytorch=1.0.0
     - tensorboard
+    - tensorboardX
     - pandas
     - imageio
     - pyqt=4.11.4
