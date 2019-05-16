@@ -27,7 +27,7 @@ class NaiveConditionedCNN(nn.Module):
         self.cond_FC1 = FC(input_size=4, output_size=2, drop_prob=0.0)
 
 
-    def forward(self, x, cond_features) -> torch.Tensor:
+    def forward(self, x, measurements) -> torch.Tensor:
         '''
         param x: shape (N, 66, 200, 3) (N, H, W, C)
         '''
@@ -42,15 +42,15 @@ class NaiveConditionedCNN(nn.Module):
 
         # Flatten layer before FC layers
         x = x.reshape((N, -1))
-        cond_features = cond_features.reshape(N, -1)
+        measurements = measurements.reshape(N, -1)
 
         x = self.FC1(x)
         x = self.FC2(x)
         x = self.FC3(x)
         x = F.relu(x)
 
-        cond_features = self.cond_FC1(cond_features)
-        cat_x = torch.cat((x, cond_features), 1)
+        measurements = self.cond_FC1(measurements)
+        cat_x = torch.cat((x, measurements), 1)
 
         x = self.FC4(cat_x)
         return x

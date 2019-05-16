@@ -62,9 +62,7 @@ class DrivingDataset(data.Dataset):
         measurements[3] = speed
         measurements[high_level_control] = 1
         measurements = torch.as_tensor(measurements)
-        print(measurements.shape)
-        print(X.shape)
-        return X, high_level_control, y_steer
+        return X, measurements.float(), y_steer
 
 def main():
     csv_driving_data = 'data/driving_log.csv'

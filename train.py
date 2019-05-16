@@ -28,7 +28,7 @@ def main():
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
-    model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=50)
+    model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=100)
 
     # Save
     torch.save(model_trained.state_dict(), 'save/test_weights.pth')
@@ -55,12 +55,12 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):
             running_loss = 0.0
             running_corrects = 0
 
-            for inputs, high_level_controls, labels in dataloaders[phase]:
+            for inputs, measurements, labels in dataloaders[phase]:
                 inputs = inputs.to(device)
                 labels = labels.to(device)
-                high_level_controls = high_level_controls.to(device)
+                measurements = measurements.to(device)
 
-                outputs = model(inputs) # TODO , high_level_controls)
+                outputs = model(inputs, measurements)
                 loss = criterion(outputs, labels)
 
                 if phase == 'train':

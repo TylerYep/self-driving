@@ -36,6 +36,7 @@ def telemetry(sid, data):
     speed = data["speed"]
     # The current high level command of the car
     high_level_control = data["high_level_control"]
+    high_level_control = int(float(high_level_control))
     # The current image from the center camera of the car
     imgString = data["image"]
     image = Image.open(BytesIO(base64.b64decode(imgString)))
@@ -49,8 +50,15 @@ def telemetry(sid, data):
     # add singleton batch dimension
     image_array = np.expand_dims(image_array, axis=0) # Shape (N, H, W, C)
 
+    # Create measurements with speed and one-hot high-level control
+    measurements = np.zeros((4, 1)) # 3 index is for speed, 0-2 index is one-hot high-level control
+    measurements[3] = speed
+    measurements[high_level_control] = 1
+    measurements = torch.as_tensor(measurements)
+    measurements = measurements.float()
+
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
-    steering_angle = float(model(torch.tensor(image_array))) # TODO ADD high_level_control and speed
+    steering_angle = float(model(torch.tensor(image_array), measurements)) # TODO ADD high_level_control and speed
 
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
     throttle = 0.28
