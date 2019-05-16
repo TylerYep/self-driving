@@ -17,7 +17,7 @@ from tensorboardX import SummaryWriter
 
 def main():
     dataset = DrivingDataset(const.DRIVING_LOG_PATH)
-    print(len(dataset))
+    print("Dataset length: ", len(dataset))
     dataloaders = {
         'train': data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=8), # TODO 32 on gpu
         'dev': data.DataLoader(dataset, batch_size=4, shuffle=False, num_workers=8),
@@ -28,7 +28,7 @@ def main():
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
-    model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=100)
+    model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=50)
 
     # Save
     torch.save(model_trained.state_dict(), 'save/test_weights.pth')
