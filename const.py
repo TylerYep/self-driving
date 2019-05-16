@@ -15,6 +15,17 @@ CONFIG = {
     'augmentation_steer_sigma': 0.2,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,
-    'bias': 0.8,
+    'crop_height': range(20, 140)
+}
+
+RESNET_CONFIG = {
+    'batchsize': 32,
+    'input_width': 224,
+    'input_height': 600,
+    'input_channels': 3,
+    'delta_correction': 0.25,
+    'augmentation_steer_sigma': 0.2,
+    'augmentation_value_min': 0.2,
+    'augmentation_value_max': 1.5,
     'crop_height': range(20, 140)
 }

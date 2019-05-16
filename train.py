@@ -28,10 +28,10 @@ def main():
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
-    model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=50)
+    model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=100)
 
     # Save
-    torch.save(model_trained.state_dict(), 'save/test_weights.pth')
+    torch.save(model_trained.state_dict(), 'save/test_weights_final.pth')
     print(model_trained)
 
 
@@ -73,6 +73,8 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):
                 # running_corrects += torch.sum(preds == labels.data)
             tbx.add_scalar(phase + '/MSE', running_loss, epoch)
             print(phase + ":", running_loss)
+            if ((epoch + 1) % 20) == 0: # save every 20 epochs
+                torch.save(model.state_dict(), 'save/test_weights_' + str(epoch + 1) + '.pth')
 
             # epoch_loss = running_loss / len(image_datasets[phase])
             # epoch_acc = running_corrects.double() / len(image_datasets[phase])
