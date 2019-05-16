@@ -34,8 +34,6 @@ def main():
     torch.save(model_trained.state_dict(), 'save/test_weights_final.pth')
     print(model_trained)
 
-
-
 # Train
 def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):
     # Visualization on Tensboard
