@@ -49,11 +49,12 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):
             running_loss = 0.0
             running_corrects = 0
 
-            for inputs, labels in dataloaders[phase]:
+            for inputs, high_level_controls, labels in dataloaders[phase]:
                 inputs = inputs.to(device)
                 labels = labels.to(device)
+                high_level_controls = high_level_controls.to(device)
 
-                outputs = model(inputs)
+                outputs = model(inputs) # TODO , high_level_controls)
                 loss = criterion(outputs, labels)
 
                 if phase == 'train':

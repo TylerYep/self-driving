@@ -21,10 +21,11 @@ class DrivingDataset(data.Dataset):
 
     def __getitem__(self, index):
         h, w, c = const.CONFIG['input_height'], const.CONFIG['input_width'], const.CONFIG['input_channels']
-        ct_path, lt_path, rt_path, steer, throttle, brake, speed = self.data[index]
+        ct_path, lt_path, rt_path, steer, throttle, brake, speed, high_level_control = self.data[index]
 
         steer = np.float32(steer)
         throttle = np.float32(throttle)
+        high_level_control = np.int32(high_level_control)
         delta_correction = const.CONFIG['delta_correction']
         camera = random.choice(['frontal', 'left', 'right'])
         if camera == 'frontal':
@@ -54,7 +55,7 @@ class DrivingDataset(data.Dataset):
                 frame = cv2.cvtColor(frame, code=cv2.COLOR_HSV2BGR)
         X = torch.as_tensor(frame) # shape (h, w, c)
         y_steer = torch.as_tensor(steer) # shape (1,)
-        return X, y_steer
+        return X, high_level_control, y_steer
 
 
 def main():
@@ -64,7 +65,7 @@ def main():
         driving_data = [row for row in reader][1:]
     data = DrivingDataset(driving_data)
     print(len(data))
-    X, y_steer = data[3]
+    X, high_level_control, y_steer = data[3]
     print(X.shape, type(X))
     print(y_steer.shape, type(y_steer))
 
