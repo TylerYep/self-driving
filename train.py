@@ -11,8 +11,7 @@ import torch.utils.data as data
 
 import const
 from dataset import DrivingDataset
-from models import NaiveConditionedCNN
-from resnet import PretrainedResNet
+from models import NaiveConditionedCNN, PretrainedResNet
 
 from tensorboardX import SummaryWriter
 

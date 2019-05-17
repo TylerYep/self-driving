@@ -3,7 +3,6 @@ import torch
 from torch.utils import data
 import const
 from load_data import preprocess
-import csv
 import numpy as np
 import pandas as pd
 import random

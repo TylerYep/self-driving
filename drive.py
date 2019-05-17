@@ -18,8 +18,7 @@ import numpy as np
 import const
 from load_data import preprocess
 
-from models import NaiveConditionedCNN
-from resnet import PretrainedResNet
+from models import NaiveConditionedCNN, PretrainedResNet
 import torchvision.transforms as transforms
 
 sio = socketio.Server()
@@ -41,8 +40,7 @@ def telemetry(sid, data):
     # The current speed of the car
     speed = data["speed"]
     # The current high level command of the car
-    high_level_control = data["high_level_control"]
-    high_level_control = int(float(high_level_control))
+    high_level_control = int(float(data["high_level_control"]))
     # The current image from the center camera of the car
     imgString = data["image"]
     image = Image.open(BytesIO(base64.b64decode(imgString)))
@@ -79,10 +77,10 @@ def telemetry(sid, data):
 
     steering_angle = float(outputs[:,0])
     throttle = float(outputs[:,1])
-    print(steering_angle, throttle, high_level_control)
+    print(control_to_string(steering_angle, throttle, high_level_control))
     send_control(steering_angle, throttle)
 
-def get_command(steer, throttle, control): # TODO
+def control_to_string(steer, throttle, control): # TODO
     high_level_control = {0: 'Straight', 1: 'Left', 2: 'Right'}
     return steer*25, throttle*30.19, high_level_control[control]
 
