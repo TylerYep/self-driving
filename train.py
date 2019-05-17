@@ -19,9 +19,9 @@ def main():
     dataset = DrivingDataset(const.DRIVING_LOG_PATH, pretrain_normalize=False) # Set pretrain_normalize to true when using pretrained models
     print("Dataset length: ", len(dataset))
     dataloaders = {
-        'train': data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=8), # TODO 32 on gpu
-        'dev': data.DataLoader(dataset, batch_size=4, shuffle=False, num_workers=8),
-        'test': data.DataLoader(dataset, batch_size=4, shuffle=False, num_workers=8)
+        'train': data.DataLoader(dataset, batch_size=const.CONFIG['batchsize'], shuffle=True, num_workers=8), # TODO 32 on gpu
+        'dev': data.DataLoader(dataset, batch_size=const.CONFIG['batchsize'], shuffle=False, num_workers=8),
+        'test': data.DataLoader(dataset, batch_size=const.CONFIG['batchsize'], shuffle=False, num_workers=8)
     }
 
     model = NaiveConditionedCNN()

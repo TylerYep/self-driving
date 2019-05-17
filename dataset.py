@@ -12,7 +12,7 @@ import torchvision.transforms as transforms
 
 class DrivingDataset(data.Dataset):
     # TODO: Move pretrain_normalize flag to const perhaps?
-    def __init__(self, driving_log_csv, augment_data=True, pretrain_normalize=False):
+    def __init__(self, driving_log_csv, augment_data=False, pretrain_normalize=False):
         self.data = pd.read_csv(driving_log_csv)
         self.augment_data = augment_data
         self.pretrain_normalize = pretrain_normalize
