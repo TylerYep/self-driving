@@ -12,6 +12,7 @@ import cv2
 import torchvision.transforms as transforms
 
 class DrivingDataset(data.Dataset):
+    # TODO: Move pretrain_normalize flag to const perhaps?
     def __init__(self, driving_log_csv, augment_data=True, pretrain_normalize=False):
         self.data = pd.read_csv(driving_log_csv)
         self.augment_data = augment_data
@@ -45,10 +46,11 @@ class DrivingDataset(data.Dataset):
             steer = steer - delta_correction
 
         if self.augment_data:
+            # Mirror images does not work well with high level controls
             # mirror images with prob=0.5
-            if random.choice([True, False]):
+            '''if random.choice([True, False]):
                 frame = frame[:, ::-1, :]
-                steer *= -1.
+                steer *= -1.'''
 
             # perturb slightly steering direction
             steer += np.random.normal(loc=0, scale=const.CONFIG['augmentation_steer_sigma'])

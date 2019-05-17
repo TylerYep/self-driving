@@ -99,7 +99,7 @@ if __name__ == '__main__':
     model = NaiveConditionedCNN()
     #model = PretrainedResNet()
     print('Loading weights: {}'.format('save/test_weights.pth'))
-    model.load_state_dict(torch.load('save/test_weights_40.pth'))
+    model.load_state_dict(torch.load('save/test_weights_80.pth'))
     model.eval()
 
     # wrap Flask application with engineio's middleware
