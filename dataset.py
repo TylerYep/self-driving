@@ -73,10 +73,10 @@ class DrivingDataset(data.Dataset):
 
 def main():
     data = DrivingDataset(const.DRIVING_LOG_PATH)
-    print(len(data))
+    print("Dataset length:", len(data))
     X, measurements, y_steer = data[3]
-    print(X.shape, type(X))
-    print(y_steer.shape, type(y_steer))
+    #print(X.shape, type(X))
+    #print(y_steer.shape, type(y_steer))
 
 if __name__ == '__main__':
     main()
