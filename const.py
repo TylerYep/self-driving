@@ -9,6 +9,7 @@ torch.manual_seed(0)
 DATA_PATH = 'data/'
 SAVE_PATH = 'save/'
 DRIVING_LOG_PATH = DATA_PATH + 'driving_log.csv'
+SAVE_EVERY = 3
 
 
 NVIDIA_H, NVIDIA_W = 66, 200

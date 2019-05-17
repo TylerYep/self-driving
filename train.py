@@ -75,7 +75,7 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):
             running_loss = running_loss / num_batches
             tbx.add_scalar(phase + '/MSE', running_loss, epoch)
             print(phase + ":", running_loss)
-            if ((epoch + 1) % 20) == 0: # save every 20 epochs
+            if ((epoch + 1) % const.SAVE_EVERY) == 0: # save every 20 epochs
                 torch.save(model.state_dict(), 'save/test_weights_' + str(epoch + 1) + '.pth')
 
             # epoch_loss = running_loss / len(image_datasets[phase])
