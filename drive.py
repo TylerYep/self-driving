@@ -76,11 +76,19 @@ def telemetry(sid, data):
     outputs = float(model(image_array, measurements)) #outputs[0] is steer and outputs[1] is throttle
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
     #throttle = 0.28
-    
+
     steering_angle = outputs[0]
     throttle = outputs[1]
     print(steering_angle, throttle, high_level_control)
     send_control(steering_angle, throttle)
+
+    def get_command(h): # TODO
+        if h == 0:
+            return 'Straight'
+        elif h == 1:
+            return 'Left'
+        elif h == 2:
+            return 'Right'
 
 
 @sio.on('connect')
