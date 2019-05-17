@@ -15,21 +15,16 @@ from flask import Flask, render_template
 from io import BytesIO
 import os
 import numpy as np
-import const
-from load_data import preprocess
 
-from models import NaiveConditionedCNN, PretrainedResNet
-import torchvision.transforms as transforms
+import const
+import util
+from load_data import preprocess
+from models import Model
 
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
 prev_image_array = None
-
-# TODO: move to const
-shouldNormalize = False
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
 
 @sio.on('telemetry')
 def telemetry(sid, data):
@@ -52,10 +47,10 @@ def telemetry(sid, data):
     image_array = preprocess(frame_bgr=image_array)
 
     image_array = torch.as_tensor(image_array)
-    if shouldNormalize:
+    if const.USE_NORMALIZE:
         h, w, c = image_array.shape
         image_array = image_array.reshape((c, h, w)) # reshaped for normalize function
-        image_array = normalize(image_array)
+        image_array = const.NORMALIZE_FN(image_array)
         image_array = image_array.reshape((h, w, c)) # reshaped back to expected shape
 
     # add singleton batch dimension
@@ -77,12 +72,9 @@ def telemetry(sid, data):
 
     steering_angle = float(outputs[:,0])
     throttle = float(outputs[:,1])
-    print(control_to_string(steering_angle, throttle, high_level_control))
+    print(util.control_to_string(steering_angle, throttle, high_level_control))
     send_control(steering_angle, throttle)
 
-def control_to_string(steer, throttle, control): # TODO
-    high_level_control = {0: 'Straight', 1: 'Left', 2: 'Right'}
-    return steer*25, throttle*30.19, high_level_control[control]
 
 @sio.on('connect')
 def connect(sid, environ):
@@ -99,11 +91,10 @@ def send_control(steering_angle, throttle):
 
 if __name__ == '__main__':
     # load model weights
-    # weights_path = os.path.join('checkpoints', os.listdir('checkpoints')[-1])
-    model = NaiveConditionedCNN()
-    #model = PretrainedResNet()
-    print('Loading weights: {}'.format('save/test_weights.pth'))
-    model.load_state_dict(torch.load('save/test_weights_80.pth'))
+    model = Model(const.CURR_MODEL)
+
+    print('Loading weights: {}'.format(const.MODEL_WEIGHTS))
+    model.load_state_dict(torch.load(const.MODEL_WEIGHTS))
     model.eval()
 
     # wrap Flask application with engineio's middleware

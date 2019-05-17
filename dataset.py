@@ -11,14 +11,9 @@ import cv2
 import torchvision.transforms as transforms
 
 class DrivingDataset(data.Dataset):
-    # TODO: Move pretrain_normalize flag to const perhaps?
-    def __init__(self, driving_log_csv, augment_data=False, pretrain_normalize=False):
-        self.data = pd.read_csv(driving_log_csv)
-        self.augment_data = augment_data
-        self.pretrain_normalize = pretrain_normalize
-        if self.pretrain_normalize:
-            self.normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
+    ''' Uses the csv listed in const.py '''
+    def __init__(self):
+        self.data = pd.read_csv(const.DATA_PATH + 'driving_log.csv')
 
     def __len__(self):
         return len(self.data)
@@ -46,7 +41,7 @@ class DrivingDataset(data.Dataset):
                 frame = preprocess(cv2.imread(join(const.DATA_PATH, rt_path.strip())))
                 steer = steer - delta_correction
 
-            if self.augment_data:
+            if const.AUGMENT_DATA:
                 # Mirror images does not work well with high level controls
                 # mirror images with prob=0.5
                 '''if random.choice([True, False]):
@@ -76,17 +71,17 @@ class DrivingDataset(data.Dataset):
                 measurements[3] = speed
                 measurements[high_level_control] = 1
                 measurements = torch.as_tensor(measurements)
-                if self.pretrain_normalize:
+                if const.USE_NORMALIZE:
                     X = X.reshape((c, h, w)) # reshaped for normalize function
-                    X = self.normalize(X)
+                    X = const.NORMALIZE_FN(X)
                     X = X.reshape((h, w, c)) # reshaped back to expected shape
                 break
 
         return X, measurements.float(), labels
 
 def main():
-    data = DrivingDataset(const.DRIVING_LOG_PATH)
-    print("Dataset length:", len(data))
+    data = DrivingDataset()
+    print('Dataset length: ', len(data))
     X, measurements, labels = data[3]
     print(X.shape, type(X))
     print(labels.shape, type(labels))
