@@ -55,7 +55,9 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):
             running_loss = 0.0
             running_corrects = 0
 
+            num_batches = 0
             for inputs, measurements, labels in dataloaders[phase]:
+                num_batches += 1
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 measurements = measurements.to(device)
@@ -71,6 +73,7 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=3):
                 _, preds = torch.max(outputs, 1)
                 running_loss += loss.item()# * inputs.size(0)
                 # running_corrects += torch.sum(preds == labels.data)
+            running_loss = running_loss / num_batches
             tbx.add_scalar(phase + '/MSE', running_loss, epoch)
             print(phase + ":", running_loss)
             if ((epoch + 1) % 20) == 0: # save every 20 epochs

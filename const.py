@@ -6,7 +6,7 @@ import numpy as np
 np.random.seed(0)
 torch.manual_seed(0)
 
-DATA_PATH = 'data/'
+DATA_PATH = 'overfit_data/'
 SAVE_PATH = 'save/'
 DRIVING_LOG_PATH = DATA_PATH + 'driving_log.csv'
 
@@ -19,9 +19,10 @@ CONFIG = {
     'input_height': NVIDIA_H,
     'input_channels': 3,
     'delta_correction': 0.25,
-    'augmentation_steer_sigma': 0.2,
+    'augmentation_steer_sigma': 0.05,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,
+    'bias': 0.8,
     'crop_height': range(20, 140)
 }
 
@@ -34,5 +35,6 @@ RESNET_CONFIG = {
     'augmentation_steer_sigma': 0.2,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,
+    'bias': 0.8,
     'crop_height': range(20, 140)
 }

@@ -22,7 +22,7 @@ class NaiveConditionedCNN(nn.Module):
         self.FC3 = nn.Linear(50, 10)
 
         # concatenate the output of FC3 and cond_FC1
-        self.FC4 = nn.Linear(12, 1)
+        self.FC4 = nn.Linear(12, 2)
 
         # Feed-forward layers for conditioned features: speed, 1-hot (3-dim) high level control
         self.cond_FC1 = FC(input_size=4, output_size=2, drop_prob=0.0)
