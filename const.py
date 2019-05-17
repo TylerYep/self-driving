@@ -6,7 +6,7 @@ import numpy as np
 np.random.seed(0)
 torch.manual_seed(0)
 
-DATA_PATH = 'overfit_data/'
+DATA_PATH = 'data/'
 SAVE_PATH = 'save/'
 DRIVING_LOG_PATH = DATA_PATH + 'driving_log.csv'
 
