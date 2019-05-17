@@ -73,23 +73,18 @@ def telemetry(sid, data):
 
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     #steering_angle = float(model(torch.tensor(image_array), measurements))
-    outputs = float(model(image_array, measurements)) #outputs[0] is steer and outputs[1] is throttle
+    outputs = model(image_array, measurements) #outputs[:,0] is steer and outputs[:,1] is throttle
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
     #throttle = 0.28
 
-    steering_angle = outputs[0]
-    throttle = outputs[1]
+    steering_angle = float(outputs[:,0])
+    throttle = float(outputs[:,1])
     print(steering_angle, throttle, high_level_control)
     send_control(steering_angle, throttle)
 
-    def get_command(h): # TODO
-        if h == 0:
-            return 'Straight'
-        elif h == 1:
-            return 'Left'
-        elif h == 2:
-            return 'Right'
-
+def get_command(steer, throttle, control): # TODO
+    high_level_control = {0: 'Straight', 1: 'Left', 2: 'Right'}
+    return steer*25, throttle*30.19, high_level_control[control]
 
 @sio.on('connect')
 def connect(sid, environ):
