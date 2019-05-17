@@ -17,7 +17,7 @@ CURR_MODEL = MODELS[0]
 AUGMENT_DATA = True
 MODEL_WEIGHTS = SAVE_PATH + 'test_weights_5.pth'
 EPOCHS = 5
-SAVE_MODEL_EVERY = 5
+SAVE_EVERY = 5
 
 ''' --- Constants --- '''
 USE_NORMALIZE = CURR_MODEL == 'PretrainedResNet'
