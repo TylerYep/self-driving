@@ -8,6 +8,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 import torch.optim as optim
 import torch.utils.data as data
+from tqdm import tqdm
 
 import const
 from dataset import DrivingDataset
@@ -51,7 +52,7 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
             running_corrects = 0
 
             num_batches = 0
-            for inputs, measurements, labels in dataloaders[phase]:
+            for inputs, measurements, labels in tqdm(dataloaders[phase]):
                 num_batches += 1
                 inputs = inputs.to(device)
                 labels = labels.to(device)

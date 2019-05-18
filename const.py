@@ -12,14 +12,15 @@ SAVE_PATH = 'save/'
 MODELS = ['NaiveConditionedCNN', 'PretrainedResNet']
 
 ''' --- Config Settings --- '''
-DATA_PATH = 'left_turn_data/'
+DATA_PATH = 'data/curr_data/'
 CURR_MODEL = MODELS[0]
 AUGMENT_DATA = True
-MODEL_WEIGHTS = SAVE_PATH + 'test_weights_5.pth'
-EPOCHS = 5
+MODEL_WEIGHTS = SAVE_PATH + 'test_weights_20.pth'
+EPOCHS = 100
 SAVE_EVERY = 5
 
 ''' --- Constants --- '''
+DRIVING_LOG_PATH = DATA_PATH + 'driving_log.csv'
 USE_NORMALIZE = CURR_MODEL == 'PretrainedResNet'
 NORMALIZE_FN = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                     std=[0.229, 0.224, 0.225])
