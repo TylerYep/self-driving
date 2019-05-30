@@ -33,3 +33,12 @@ class Conv2dReluDropout(nn.Module):
         relu_x_convout = F.relu(x_convout)
         out = self.dropout(relu_x_convout)
         return out
+
+class ResNet18Begin(nn.Module):
+    def __init__(self, original_model):
+        super().__init__()
+        self.features = nn.Sequential(*list(original_model.children())[:-2])
+        
+    def forward(self, x):
+        x = self.features(x)
+        return x
