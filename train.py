@@ -38,6 +38,7 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
     tbx = SummaryWriter(const.SAVE_PATH)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = model.to(device)
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch+1, num_epochs))
         print('-' * 10)
