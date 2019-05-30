@@ -27,8 +27,12 @@ def main():
     }
 
     model = Model(const.CURR_MODEL)
-    #criterion = nn.MSELoss()
-    criterion = loss_utils.branched_l2_loss
+    criterion = None
+    if const.CURR_MODEL == 'BranchedCOIL':
+        criterion = loss_utils.branched_l2_loss
+    else:
+        criterion = nn.MSELoss()
+    
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
     model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=const.EPOCHS)
@@ -63,10 +67,13 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
 
                 outputs = model(inputs, measurements)
 
-                # only used for branched architecture
-                high_level_control_masks = loss_utils.compute_branch_masks(high_level_controls, num_targets=2)
-
-                loss = criterion(outputs, labels, high_level_control_masks) # only pass in masks for branched architecture
+                loss = None
+                if const.CURR_MODEL == 'BranchedCOIL':
+                    # only used for branched architecture
+                    high_level_control_masks = loss_utils.compute_branch_masks(high_level_controls, num_targets=2)
+                    loss = criterion(outputs, labels, high_level_control_masks) # only pass in masks for branched architecture
+                else:
+                    loss = criterion(outputs, labels)
 
                 if phase == 'train':
                     optimizer.zero_grad()
