@@ -94,7 +94,8 @@ if __name__ == '__main__':
     model = Model(const.CURR_MODEL)
 
     print('Loading weights: {}'.format(const.MODEL_WEIGHTS))
-    model.load_state_dict(torch.load(const.MODEL_WEIGHTS))
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model.load_state_dict(torch.load(const.MODEL_WEIGHTS, map_location=device))
     model.eval()
 
     # wrap Flask application with engineio's middleware
