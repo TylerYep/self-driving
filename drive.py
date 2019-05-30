@@ -70,8 +70,15 @@ def telemetry(sid, data):
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
     #throttle = 0.28
 
-    steering_angle = float(outputs[:,0])
-    throttle = float(outputs[:,1])
+    steering_angle = None
+    throttle = None
+    if const.CURR_MODEL == 'BranchedCOIL':
+        steering_angle = float(outputs[high_level_control][:,0])
+        throttle = float(outputs[high_level_control][:,1])
+    else:
+        steering_angle = float(outputs[:,0])
+        throttle = float(outputs[:,1])
+        
     print(util.control_to_string(steering_angle, throttle, high_level_control))
     send_control(steering_angle, throttle)
 
