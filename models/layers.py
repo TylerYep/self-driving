@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import torchvision.models as models
 
 class FC(nn.Module):
     def __init__(self, input_size, output_size, drop_prob):
@@ -42,3 +43,26 @@ class ResNet18Begin(nn.Module):
     def forward(self, x):
         x = self.features(x)
         return x
+
+class resnet34(nn.Module):
+    """Constructs a ResNet-34 model.
+    Returns a resnet model optionally pre-trained on ImageNet
+    """
+    def __init__(self, pretrained=False):
+        super().__init__()
+        original_model = models.resnet34(pretrained=True)
+        self.features = nn.Sequential(*list(original_model.children())[:-1])
+        
+    def forward(self, x):
+        x = self.features(x)
+        return x
+
+class Branch(nn.Module):
+    def __init__(self, branched_submodules):
+        super().__init__()
+        self.branched_submodules = nn.ModuleList(branched_submodules)
+    def forward(self, x):
+        output_branches = [branch(x) for branch in self.branched_submodules]
+        return output_branches
+
+

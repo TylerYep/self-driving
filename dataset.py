@@ -67,7 +67,7 @@ class DrivingDataset(data.Dataset):
                 X = torch.as_tensor(frame) # shape (h, w, c)
                 labels = torch.as_tensor([steer, throttle]) # shape (2,)
                 #y_steer = torch.as_tensor(steer).unsqueeze(0) # shape (1,)
-                measurements = np.zeros((4, 1)) # 0 index is for speed, 1-3 index is one-hot high-level control
+                measurements = np.zeros((4, 1)) # 3 index is for speed, 0-3 index is one-hot high-level control
                 measurements[3] = speed
                 measurements[high_level_control] = 1
                 measurements = torch.as_tensor(measurements)
@@ -77,12 +77,12 @@ class DrivingDataset(data.Dataset):
                     X = X.reshape((h, w, c)) # reshaped back to expected shape
                 break
 
-        return X, measurements.float(), labels
+        return X, measurements.float(), labels, high_level_control
 
 def main():
     data = DrivingDataset()
     print('Dataset length: ', len(data))
-    X, measurements, labels = data[3]
+    X, measurements, labels, high_level_control = data[3]
     print(X.shape, type(X))
     print(labels.shape, type(labels))
 

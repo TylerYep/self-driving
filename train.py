@@ -13,6 +13,7 @@ from tqdm import tqdm
 import const
 from dataset import DrivingDataset
 from models import Model
+import loss_utils
 
 from tensorboardX import SummaryWriter
 
@@ -26,7 +27,8 @@ def main():
     }
 
     model = Model(const.CURR_MODEL)
-    criterion = nn.MSELoss()
+    #criterion = nn.MSELoss()
+    criterion = loss_utils.branched_l2_loss
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
     model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=const.EPOCHS)
@@ -53,23 +55,25 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
             running_corrects = 0
 
             num_batches = 0
-            for inputs, measurements, labels in tqdm(dataloaders[phase]):
+            for inputs, measurements, labels, high_level_controls in tqdm(dataloaders[phase]):
                 num_batches += 1
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 measurements = measurements.to(device)
 
                 outputs = model(inputs, measurements)
-                loss = criterion(outputs, labels)
+
+                # only used for branched architecture
+                high_level_control_masks = loss_utils.compute_branch_masks(high_level_controls, num_targets=2)
+
+                loss = criterion(outputs, labels, high_level_control_masks) # only pass in masks for branched architecture
 
                 if phase == 'train':
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
 
-                _, preds = torch.max(outputs, 1)
-                running_loss += loss.item()# * inputs.size(0)
-                # running_corrects += torch.sum(preds == labels.data)
+                running_loss += loss.item()
             running_loss = running_loss / num_batches
             tbx.add_scalar(phase + '/MSE', running_loss, epoch)
             print(phase + ":", running_loss)

@@ -11,13 +11,13 @@ class PretrainedResNet(nn.Module):
         resnet18 = models.resnet18(pretrained=True)
 
         self.resnet18_features = ResNet18Begin(resnet18)
-        for param in self.resnet18_features.parameters():
-            param.requires_grad = False
+        '''for param in self.resnet18_features.parameters():
+            param.requires_grad = False'''
         # Currently runs a feed forward network after frozen resnet feature extractor
-        self.FC0 = FC(input_size = 10752, output_size=1000, drop_prob=0.5)
+        self.FC0 = FC(input_size = 10752, output_size=1000, drop_prob=0.1)
 
-        self.FC1 = FC(input_size=1000, output_size=100, drop_prob=0.5) # See output of self.conv5
-        self.FC2 = FC(input_size=100, output_size=50, drop_prob=0.5)
+        self.FC1 = FC(input_size=1000, output_size=100, drop_prob=0.1) # See output of self.conv5
+        self.FC2 = FC(input_size=100, output_size=50, drop_prob=0.1)
         self.FC3 = nn.Linear(50, 10)
 
         # concatenate the output of FC3 and cond_FC1
