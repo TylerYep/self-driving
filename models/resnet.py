@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import torchvision.models as models
-from .layers import FC
+from layers import FC
 
 class PretrainedResNet(nn.Module):
     def __init__(self):
