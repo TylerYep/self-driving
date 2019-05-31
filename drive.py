@@ -17,7 +17,6 @@ import os
 import numpy as np
 
 import const
-import util
 from load_data import preprocess
 from models import Model
 
@@ -73,15 +72,17 @@ def telemetry(sid, data):
     steering_angle = None
     throttle = None
     if const.CURR_MODEL == 'BranchedCOIL':
-        steering_angle = float(outputs[high_level_control][:,0])
-        throttle = float(outputs[high_level_control][:,1])
+        steering_angle = float(outputs[high_level_control][:, 0])
+        throttle = float(outputs[high_level_control][:, 1])
     else:
-        steering_angle = float(outputs[:,0])
-        throttle = float(outputs[:,1])
-        
-    print(util.control_to_string(steering_angle, throttle, high_level_control))
-    send_control(steering_angle, throttle)
+        steering_angle = float(outputs[:, 0])
+        throttle = float(outputs[:, 1])
 
+    send_control(steering_angle, throttle)
+    print(util.control_to_string(steering_angle, throttle, high_level_control))
+
+def control_to_string(steer, throttle, high_level):
+    return steer, throttle, const.CONTROLS[high_level]
 
 @sio.on('connect')
 def connect(sid, environ):

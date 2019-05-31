@@ -32,7 +32,7 @@ def main():
         criterion = loss_utils.branched_l2_loss
     else:
         criterion = nn.MSELoss()
-    
+
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
     model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=const.EPOCHS)
@@ -56,8 +56,6 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
                 model.eval()
 
             running_loss = 0.0
-            running_corrects = 0
-
             num_batches = 0
             for inputs, measurements, labels, high_level_controls in tqdm(dataloaders[phase]):
                 num_batches += 1

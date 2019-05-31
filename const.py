@@ -4,18 +4,18 @@ Configuration and hyperparameters
 import torch
 import numpy as np
 import torchvision.transforms as transforms
-
+import util
 np.random.seed(0)
 torch.manual_seed(0)
 
-SAVE_PATH = 'save/'
+SAVE_PATH = 'save/' + util.get_run_name()
 MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
 
 ''' --- Config Settings --- '''
-DATA_PATH = 'lake_data/'
+DATA_PATH = 'data/'
 CURR_MODEL = MODELS[2]
 AUGMENT_DATA = False
-MODEL_WEIGHTS = SAVE_PATH + 'test_weights_840.pth'
+MODEL_WEIGHTS = SAVE_PATH + 'test_weights_20.pth'
 EPOCHS = 100
 SAVE_EVERY = 5
 
@@ -53,4 +53,5 @@ RESNET_CONFIG = {
 }
 
 CONTROLS = {0: 'Straight', 1: 'Left', 2: 'Right'}
+
 

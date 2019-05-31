@@ -8,7 +8,7 @@ from .layers import FC, ResNet18Begin, resnet34, Branch
 class BranchedCOIL(nn.Module):
     def __init__(self):
         super().__init__()
-        self.resnet34 = resnet34(pretrained=True)
+        self.resnet34 = resnet34(pretrained=False)
         num_branches = 3
         branch_fc_list = []
         for i in range(num_branches):
@@ -31,7 +31,7 @@ class BranchedCOIL(nn.Module):
         return output_branches
 
 if __name__ == '__main__':
-    data = torch.from_numpy(np.zeros((32, 224, 600, 3))).float()
+    data = torch.zeros((32, 224, 600, 3)).float()
     cond_features = torch.zeros((32, 4, 1))
     model = BranchedCOIL()
     out = model(data, cond_features)
