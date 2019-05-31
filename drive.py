@@ -58,7 +58,7 @@ def telemetry(sid, data):
     measurements = np.zeros((4, 1)) # 3 index is for speed, 0-2 index is one-hot high-level control
     measurements[3] = speed
     measurements[high_level_control] = 1
-    measurements = torch.as_tensor(measurements, dtype=float)
+    measurements = torch.as_tensor(measurements, dtype=torch.float)
 
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     # steering_angle = float(model(torch.tensor(image_array), measurements))
