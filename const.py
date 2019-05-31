@@ -12,7 +12,7 @@ SAVE_PATH = 'save/' #+ util.get_run_name()
 MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
 
 ''' --- Config Settings --- '''
-DATA_PATH = 'overfit_data/'
+DATA_PATH = 'new_overfit_data/'
 CURR_MODEL = MODELS[2]
 AUGMENT_DATA = False
 MODEL_WEIGHTS = SAVE_PATH + 'test_weights_220.pth'

@@ -43,7 +43,7 @@ def preprocess(frame_bgr, verbose=False):
     # frame_cropped = frame_bgr[const.CONFIG['crop_height'], :, :]
 
     # resize image
-    frame_resized = cv2.resize(frame_cropped, dsize=(w, h))
+    frame_resized = cv2.resize(frame_bgr, dsize=(w, h))
 
     # eventually change color space
     '''
