@@ -30,7 +30,9 @@ class DrivingDataset(data.Dataset):
             speed = np.float32(speed)
 
             delta_correction = const.CONFIG['delta_correction']
-            camera = random.choice(['frontal', 'left', 'right'])
+            #camera = random.choice(['frontal', 'left', 'right'])
+            camera = 'frontal' # for debugging
+            
             if camera == 'frontal':
                 frame = preprocess(cv2.imread(join(const.DATA_PATH, ct_path.strip())))
                 steer = steer
