@@ -39,7 +39,8 @@ def preprocess(frame_bgr, verbose=False):
     h, w = const.CONFIG['input_height'], const.CONFIG['input_width']
 
     # crop image (remove useless information)
-    frame_cropped = frame_bgr[const.CONFIG['crop_height'], :, :]
+    # NO NEED TO CROP IMAGE WITH MODIFIED SIMULATOR CAMERA ANGLE
+    # frame_cropped = frame_bgr[const.CONFIG['crop_height'], :, :]
 
     # resize image
     frame_resized = cv2.resize(frame_cropped, dsize=(w, h))

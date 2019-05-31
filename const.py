@@ -15,7 +15,7 @@ MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
 DATA_PATH = 'overfit_data/'
 CURR_MODEL = MODELS[2]
 AUGMENT_DATA = False
-MODEL_WEIGHTS = SAVE_PATH + 'test_weights_340.pth'
+MODEL_WEIGHTS = SAVE_PATH + 'test_weights_220.pth'
 EPOCHS = 100
 SAVE_EVERY = 5
 
@@ -31,7 +31,7 @@ CONFIG = {
     'input_width': NVIDIA_W,
     'input_height': NVIDIA_H,
     'input_channels': 3,
-    'delta_correction': 0.25,
+    'delta_correction': 0.5,
     'augmentation_steer_sigma': 0.05,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,
