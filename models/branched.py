@@ -7,7 +7,7 @@ from .layers import FC, ResNet18Begin, ResNet34, Branch
 class BranchedCOIL(nn.Module):
     def __init__(self):
         super().__init__()
-        self.resnet34 = resnet34(pretrained=True)
+        self.resnet34 = ResNet34(pretrained=True)
         num_branches = 3
         branch_fc_list = []
         for i in range(num_branches):
