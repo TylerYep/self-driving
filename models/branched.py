@@ -1,9 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 import torchvision.models as models
-from .layers import FC, ResNet18Begin, resnet34, Branch
+from .layers import FC, ResNet18Begin, ResNet34, Branch
 
 class BranchedCOIL(nn.Module):
     def __init__(self):

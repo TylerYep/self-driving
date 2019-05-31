@@ -8,7 +8,7 @@ import util
 np.random.seed(0)
 torch.manual_seed(0)
 
-SAVE_PATH = 'save/' #+ util.get_run_name()
+SAVE_PATH = 'save/' + util.get_run_name()
 MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
 
 ''' --- Config Settings --- '''
@@ -35,7 +35,7 @@ CONFIG = {
     'augmentation_steer_sigma': 0.05,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,
-    'bias': 1.0, # equivalent to not using this bias 
+    'bias': 1.0, # equivalent to not using this bias
     'crop_height': range(20, 140)
 }
 

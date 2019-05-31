@@ -45,8 +45,10 @@ def preprocess(frame_bgr, verbose=False):
     frame_resized = cv2.resize(frame_cropped, dsize=(w, h))
 
     # eventually change color space
-    '''if const.CONFIG['input_channels'] == 1:
-        frame_resized = np.expand_dims(cv2.cvtColor(frame_resized, cv2.COLOR_BGR2YUV)[:, :, 0], 2)'''
+    '''
+    if const.CONFIG['input_channels'] == 1:
+        frame_resized = np.expand_dims(cv2.cvtColor(frame_resized, cv2.COLOR_BGR2YUV)[:, :, 0], 2)
+    '''
 
     if verbose:
         plt.figure(1), plt.imshow(cv2.cvtColor(frame_bgr, code=cv2.COLOR_BGR2RGB))

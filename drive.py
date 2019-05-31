@@ -27,14 +27,12 @@ prev_image_array = None
 
 @sio.on('telemetry')
 def telemetry(sid, data):
-    # The current steering angle of the car
+    # The current steering angle, throttle, speed, high level command for the car
     steering_angle = data["steering_angle"]
-    # The current throttle of the car
     throttle = data["throttle"]
-    # The current speed of the car
     speed = data["speed"]
-    # The current high level command of the car
     high_level_control = int(float(data["high_level_control"]))
+
     # The current image from the center camera of the car
     imgString = data["image"]
     image = Image.open(BytesIO(base64.b64decode(imgString)))
@@ -53,19 +51,19 @@ def telemetry(sid, data):
         image_array = image_array.reshape((h, w, c)) # reshaped back to expected shape
 
     # add singleton batch dimension
-    #image_array = np.expand_dims(image_array, axis=0) # Shape (N, H, W, C)
+    # image_array = np.expand_dims(image_array, axis=0) # Shape (N, H, W, C)
     image_array = torch.unsqueeze(image_array, dim=0) # Shape(N, H, W, C)
 
     # Create measurements with speed and one-hot high-level control
     measurements = np.zeros((4, 1)) # 3 index is for speed, 0-2 index is one-hot high-level control
     measurements[3] = speed
     measurements[high_level_control] = 1
-    measurements = torch.as_tensor(measurements)
-    measurements = measurements.float()
+    measurements = torch.as_tensor(measurements, dtype=float)
 
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
-    #steering_angle = float(model(torch.tensor(image_array), measurements))
-    outputs = model(image_array, measurements) #outputs[:,0] is steer and outputs[:,1] is throttle
+    # steering_angle = float(model(torch.tensor(image_array), measurements))
+    outputs = model(image_array, measurements) # outputs[:,0] is steer and outputs[:,1] is throttle
+
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
     #throttle = 0.28
 
@@ -82,10 +80,8 @@ def telemetry(sid, data):
         throttle = 0.0
 
     send_control(steering_angle, throttle)
-    print(control_to_string(steering_angle, throttle, high_level_control))
+    print(steering_angle, throttle, const.CONTROLS[high_level_control]))
 
-def control_to_string(steer, throttle, high_level):
-    return steer, throttle, const.CONTROLS[high_level]
 
 @sio.on('connect')
 def connect(sid, environ):
