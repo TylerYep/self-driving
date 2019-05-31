@@ -76,6 +76,9 @@ def telemetry(sid, data):
         steering_angle = float(outputs[:, 0])
         throttle = float(outputs[:, 1])
 
+    if np.abs(throttle) < 0.1:
+        throttle = 0.0
+
     send_control(steering_angle, throttle)
     print(steering_angle, throttle, const.CONTROLS[high_level_control]))
 

@@ -12,10 +12,10 @@ SAVE_PATH = 'save/' + util.get_run_name()
 MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
 
 ''' --- Config Settings --- '''
-DATA_PATH = 'data/'
+DATA_PATH = 'overfit_data/'
 CURR_MODEL = MODELS[2]
 AUGMENT_DATA = False
-MODEL_WEIGHTS = SAVE_PATH + 'test_weights_20.pth'
+MODEL_WEIGHTS = SAVE_PATH + 'test_weights_620.pth'
 EPOCHS = 100
 SAVE_EVERY = 5
 
@@ -35,7 +35,7 @@ CONFIG = {
     'augmentation_steer_sigma': 0.05,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,
-    'bias': 0.8,
+    'bias': 1.0, # equivalent to not using this bias
     'crop_height': range(20, 140)
 }
 
