@@ -40,7 +40,7 @@ def main():
 
 # Train
 def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
-    # Visualization on Tensboard
+    # Visualization on Tensorboard
     tbx = SummaryWriter(const.SAVE_PATH)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -82,7 +82,7 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
             running_loss = running_loss / num_batches
             tbx.add_scalar(phase + '/MSE', running_loss, epoch)
             print(phase + ":", running_loss)
-            if ((epoch + 1) % const.SAVE_EVERY) == 0: # save every 20 epochs
+            if ((epoch + 1) % const.SAVE_EVERY) == 0: # save every X epochs
                 torch.save(model.state_dict(), const.SAVE_PATH + 'test_weights_' + str(epoch + 1) + '.pth')
     return model
 

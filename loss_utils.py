@@ -1,4 +1,3 @@
-from torch.nn import functional as F
 import torch
 
 def compute_branch_masks(controls, num_targets):
@@ -21,4 +20,4 @@ def branched_l2_loss(branches, targets, masks):
 		loss_branches.append(((branches[i] - targets)**2) * masks[i])
 	return torch.sum(torch.cat(loss_branches)) / branches[0].shape[0] # Take mean over batch size
 
-	
+

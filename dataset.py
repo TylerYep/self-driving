@@ -42,11 +42,12 @@ class DrivingDataset(data.Dataset):
                 steer = steer - delta_correction
 
             if const.AUGMENT_DATA:
-                # Mirror images does not work well with high level controls
+                # Mirroring images does not work well with high level controls
                 # mirror images with prob=0.5
-                '''if random.choice([True, False]):
-                    frame = frame[:, ::-1, :]
-                    steer *= -1.'''
+
+                # if random.choice([True, False]):
+                #     frame = frame[:, ::-1, :]
+                #     steer *= -1.
 
                 # perturb slightly steering direction
                 steer += np.random.normal(loc=0, scale=const.CONFIG['augmentation_steer_sigma'])
