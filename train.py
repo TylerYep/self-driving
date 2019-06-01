@@ -25,7 +25,7 @@ def main():
     dataloaders = {
         'train': data.DataLoader(train_dataset, batch_size=const.CONFIG['batchsize'], shuffle=True, num_workers=8),
         'dev': data.DataLoader(val_dataset, batch_size=const.CONFIG['batchsize'], shuffle=False, num_workers=8),
-        'test': data.DataLoader(dataset, batch_size=const.CONFIG['batchsize'], shuffle=False, num_workers=8)
+        'test': data.DataLoader(val_dataset, batch_size=const.CONFIG['batchsize'], shuffle=False, num_workers=8)
     }
 
     model = Model(const.CURR_MODEL)
