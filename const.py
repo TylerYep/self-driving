@@ -38,7 +38,7 @@ CONFIG = {
     'input_width': NVIDIA_W,
     'input_height': NVIDIA_H,
     'input_channels': 3,
-    'delta_correction': 05,
+    'delta_correction': 0.1,
     'augmentation_steer_sigma': 0.05,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,
