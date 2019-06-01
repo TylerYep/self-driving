@@ -16,7 +16,7 @@ MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
 DATA_PATH = 'data/'
 CURR_MODEL = MODELS[2]
 AUGMENT_DATA = False
-MODEL_WEIGHTS = SAVE_PATH + 'test_weights_80.pth' # 60 was p good
+MODEL_WEIGHTS = SAVE_PATH + 'test_weights_1000.pth' # 60 was p good
 if RUN_ON_GPU:
     EPOCHS = 10000
     SAVE_EVERY = 20
