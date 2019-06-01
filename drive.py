@@ -64,8 +64,7 @@ def telemetry(sid, data):
     # steering_angle = float(model(torch.tensor(image_array), measurements))
     outputs = model(image_array, measurements) # outputs[:,0] is steer and outputs[:,1] is throttle
 
-    # The driving model currently just outputs a constant throttle. Feel free to edit this.
-    #throttle = 0.28
+
 
     steering_angle = None
     throttle = None
@@ -76,10 +75,13 @@ def telemetry(sid, data):
         steering_angle = float(outputs[:, 0])
         throttle = float(outputs[:, 1])
 
-    if np.abs(throttle) < 0.1:
-        throttle = 0.0
-    if np.abs(steering_angle) < 0.1:
-        steering_angle = 0.0
+    # if np.abs(throttle) < 0.1:
+    #     throttle = 0.0
+    # if np.abs(steering_angle) < 0.1:
+    #     steering_angle = 0.0
+
+    # The driving model currently just outputs a constant throttle. Feel free to edit this.
+    throttle = 0.28
 
     send_control(steering_angle, throttle)
     print(steering_angle, throttle, const.CONTROLS[high_level_control])
