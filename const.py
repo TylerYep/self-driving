@@ -19,7 +19,7 @@ AUGMENT_DATA = False
 MODEL_WEIGHTS = SAVE_PATH + 'test_weights_60.pth'
 if RUN_ON_GPU:
     EPOCHS = 10000
-    SAVE_EVERY = 20
+    SAVE_EVERY = 5
 else:
     EPOCHS = 100
     SAVE_EVERY = 5
@@ -38,7 +38,7 @@ CONFIG = {
     'input_width': NVIDIA_W,
     'input_height': NVIDIA_H,
     'input_channels': 3,
-    'delta_correction': 0.15,
+    'delta_correction': 05,
     'augmentation_steer_sigma': 0.05,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,
