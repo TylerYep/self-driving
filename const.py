@@ -9,14 +9,15 @@ import util
 np.random.seed(0)
 torch.manual_seed(0)
 
-SAVE_PATH = 'save/' # + util.get_run_name()
+SAVE_PATH = 'save/'
+LOG_PATH = SAVE_PATH + util.get_run_name()
 MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
 
 ''' --- Config Settings --- '''
-DATA_PATH = 'slow_data/'
-CURR_MODEL = MODELS[2]
-AUGMENT_DATA = False
-MODEL_WEIGHTS = SAVE_PATH + 'test_weights_60.pth'
+DATA_PATH = 'data/'
+CURR_MODEL = MODELS[0]
+AUGMENT_DATA = (CURR_MODEL == 'NaiveConditionedCNN')
+MODEL_WEIGHTS = SAVE_PATH + 'test_weights_200.pth' # 60 was p good on both, 0.0 at zero help, 100 even better
 if RUN_ON_GPU:
     EPOCHS = 10000
     SAVE_EVERY = 5
@@ -38,7 +39,7 @@ CONFIG = {
     'input_width': NVIDIA_W,
     'input_height': NVIDIA_H,
     'input_channels': 3,
-    'delta_correction': 0.1,
+    'delta_correction': 0.08,
     'augmentation_steer_sigma': 0.05,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,

@@ -32,7 +32,7 @@ class DrivingDataset(data.Dataset):
 
             delta_correction = const.CONFIG['delta_correction']
             camera = random.choice(['frontal', 'left', 'right'])
-            
+
             if camera == 'frontal':
                 frame = preprocess(cv2.imread(join(const.DATA_PATH, ct_path.strip())))
                 steer = steer
@@ -46,10 +46,10 @@ class DrivingDataset(data.Dataset):
             if const.AUGMENT_DATA:
                 # Mirroring images does not work well with high level controls
                 # mirror images with prob=0.5
-
-                # if random.choice([True, False]):
-                #     frame = frame[:, ::-1, :]
-                #     steer *= -1.
+                if const.CURR_MODEL == 'NaiveConditionedCNN': # LAKE_TRACK only
+                    if random.choice([True, False]):
+                        frame = frame[:, ::-1, :]
+                        steer *= -1.
 
                 # perturb slightly steering direction
                 steer += np.random.normal(loc=0, scale=const.CONFIG['augmentation_steer_sigma'])

@@ -38,12 +38,12 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 
     model_trained = train_model(dataloaders, model, criterion, optimizer, num_epochs=const.EPOCHS)
-    torch.save(model_trained.state_dict(), const.SAVE_PATH + 'test_weights_final.pth')
+    torch.save(model_trained.state_dict(), const.LOG_PATH + 'test_weights_final.pth')
 
 # Train
 def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
     # Visualization on Tensorboard
-    tbx = SummaryWriter(const.SAVE_PATH)
+    tbx = SummaryWriter(const.LOG_PATH)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
@@ -85,7 +85,7 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
             tbx.add_scalar(phase + '/MSE', running_loss, epoch)
             print(phase + ":", running_loss)
             if ((epoch + 1) % const.SAVE_EVERY) == 0: # save every X epochs
-                torch.save(model.state_dict(), const.SAVE_PATH + 'test_weights_' + str(epoch + 1) + '.pth')
+                torch.save(model.state_dict(), const.LOG_PATH + 'weights_' + str(epoch + 1) + '.pth')
     return model
 
 if __name__ == '__main__':
