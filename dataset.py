@@ -14,7 +14,7 @@ import torchvision.transforms as transforms
 class DrivingDataset(data.Dataset):
     ''' Uses the csv listed in const.py '''
     def __init__(self, csv_path=const.DRIVING_LOG_PATH):
-        self.data = pd.read_csv(const.DRIVING_LOG_PATH)
+        self.data = pd.read_csv(csv_path)
 
     def __len__(self):
         return len(self.data)
