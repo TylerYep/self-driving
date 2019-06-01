@@ -2,17 +2,18 @@ from os.path import join
 import torch
 from torch.utils import data
 import const
-from load_data import preprocess
+from load_data import preprocess, split_train_val
 import numpy as np
 import pandas as pd
 import random
 import cv2
+import csv
 
 import torchvision.transforms as transforms
 
 class DrivingDataset(data.Dataset):
     ''' Uses the csv listed in const.py '''
-    def __init__(self):
+    def __init__(self, csv_path=const.DRIVING_LOG_PATH):
         self.data = pd.read_csv(const.DRIVING_LOG_PATH)
 
     def __len__(self):
@@ -87,6 +88,21 @@ def main():
     X, measurements, labels, high_level_control = data[3]
     print(X.shape, type(X))
     print(labels.shape, type(labels))
+
+
+    # Make sure you run clean_log.py first!!!
+    # Uncomment the following to create a training and validation set split
+    '''train_data, val_data = split_train_val(const.DRIVING_LOG_PATH, test_size=0.1)
+    with open(const.VAL_DRIVING_LOG_PATH, "w", newline="") as f:
+        cw = csv.writer(f, delimiter=",")
+        cw.writerows(r for r in val_data)
+    with open(const.TRAIN_DRIVING_LOG_PATH, "w", newline="") as f:
+        cw = csv.writer(f, delimiter=",")
+        cw.writerows(r for r in train_data)'''
+
+
+
+
 
 if __name__ == '__main__':
     main()

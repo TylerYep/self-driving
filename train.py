@@ -18,11 +18,13 @@ import loss_utils
 from tensorboardX import SummaryWriter
 
 def main():
-    dataset = DrivingDataset()
-    print("Dataset length: ", len(dataset))
+    train_dataset = DrivingDataset(const.TRAIN_DRIVING_LOG_PATH)
+    val_dataset = DrivingDataset(const.VAL_DRIVING_LOG_PATH)
+    print("Train Dataset length: ", len(train_dataset))
+    print("Val Dataset length: ", len(val_dataset))
     dataloaders = {
-        'train': data.DataLoader(dataset, batch_size=const.CONFIG['batchsize'], shuffle=True, num_workers=8),
-        'dev': data.DataLoader(dataset, batch_size=const.CONFIG['batchsize'], shuffle=False, num_workers=8),
+        'train': data.DataLoader(train_dataset, batch_size=const.CONFIG['batchsize'], shuffle=True, num_workers=8),
+        'dev': data.DataLoader(val_dataset, batch_size=const.CONFIG['batchsize'], shuffle=False, num_workers=8),
         'test': data.DataLoader(dataset, batch_size=const.CONFIG['batchsize'], shuffle=False, num_workers=8)
     }
 

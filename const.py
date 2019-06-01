@@ -12,15 +12,17 @@ SAVE_PATH = 'save/' #+ util.get_run_name()
 MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
 
 ''' --- Config Settings --- '''
-DATA_PATH = 'new_overfit_data/'
+DATA_PATH = 'slow_data/'
 CURR_MODEL = MODELS[2]
 AUGMENT_DATA = False
-MODEL_WEIGHTS = SAVE_PATH + 'test_weights_80.pth'
+MODEL_WEIGHTS = SAVE_PATH + 'test_weights_60.pth'
 EPOCHS = 100
 SAVE_EVERY = 5
 
 ''' --- Constants --- '''
 DRIVING_LOG_PATH = DATA_PATH + 'driving_log.csv'
+TRAIN_DRIVING_LOG_PATH = DATA_PATH + 'driving_log_train.csv'
+VAL_DRIVING_LOG_PATH = DATA_PATH + 'driving_log_val.csv'
 USE_NORMALIZE = (CURR_MODEL == 'PretrainedResNet')
 NORMALIZE_FN = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                     std=[0.229, 0.224, 0.225])
@@ -31,7 +33,7 @@ CONFIG = {
     'input_width': NVIDIA_W,
     'input_height': NVIDIA_H,
     'input_channels': 3,
-    'delta_correction': 0.2,
+    'delta_correction': 0.15,
     'augmentation_steer_sigma': 0.05,
     'augmentation_value_min': 0.2,
     'augmentation_value_max': 1.5,
