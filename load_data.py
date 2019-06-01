@@ -33,6 +33,7 @@ def preprocess(frame_bgr, verbose=False):
     """
     if frame_bgr is None:
         print('\n\ndriving_log.csv links to invalid images!\n\n')
+        print('Remember to run clean_log.py.')
         sys.exit()
 
     # set training images resized shape

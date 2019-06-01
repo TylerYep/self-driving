@@ -1,3 +1,4 @@
+RUN_ON_GPU = False
 """
 Configuration and hyperparameters
 """
@@ -8,7 +9,7 @@ import util
 np.random.seed(0)
 torch.manual_seed(0)
 
-SAVE_PATH = 'save/' #+ util.get_run_name()
+SAVE_PATH = 'save/' # + util.get_run_name()
 MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
 
 ''' --- Config Settings --- '''
@@ -16,8 +17,12 @@ DATA_PATH = 'slow_data/'
 CURR_MODEL = MODELS[2]
 AUGMENT_DATA = False
 MODEL_WEIGHTS = SAVE_PATH + 'test_weights_60.pth'
-EPOCHS = 100
-SAVE_EVERY = 5
+if RUN_ON_GPU:
+    EPOCHS = 10000
+    SAVE_EVERY = 20
+else:
+    EPOCHS = 100
+    SAVE_EVERY = 5
 
 ''' --- Constants --- '''
 DRIVING_LOG_PATH = DATA_PATH + 'driving_log.csv'

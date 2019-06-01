@@ -51,7 +51,6 @@ def telemetry(sid, data):
         image_array = image_array.reshape((h, w, c)) # reshaped back to expected shape
 
     # add singleton batch dimension
-    # image_array = np.expand_dims(image_array, axis=0) # Shape (N, H, W, C)
     image_array = torch.unsqueeze(image_array, dim=0) # Shape(N, H, W, C)
 
     # Create measurements with speed and one-hot high-level control
@@ -65,7 +64,7 @@ def telemetry(sid, data):
     outputs = model(image_array, measurements) # outputs[:,0] is steer and outputs[:,1] is throttle
 
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
-    #throttle = 0.28
+    # throttle = 0.28
 
     steering_angle = None
     throttle = None
