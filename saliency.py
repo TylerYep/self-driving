@@ -7,6 +7,7 @@ from dataset import DrivingDataset
 import cv2
 import numpy as np
 import loss_utils
+from scipy.misc import imresize
 
 def main():
     # load model weights
@@ -18,7 +19,7 @@ def main():
 
     # obtain inputs and labels
     BATCH_SIZE = 1
-    NUM_SHUFFLES = 18
+    NUM_SHUFFLES = 15
     train_dataset = DrivingDataset(const.TRAIN_DRIVING_LOG_PATH)
     train_dataloader = data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
     inputs, measurements, labels, high_level_controls = next(iter(train_dataloader))
@@ -37,6 +38,24 @@ def main():
     measurements = measurements.to(device)
 
     outputs = model(inputs, measurements)
+
+    compute_saliency(outputs, inputs, high_level_controls)
+    compute_activations(model, inputs, measurements, high_level_controls)
+
+def compute_activations(model, inputs, measurements, high_level_controls):
+    outputs, activations = model.forward_with_activations(inputs, measurements)
+    cmap = plt.get_cmap('inferno')
+    for activation in activations:
+        activation = torch.abs(activation).mean(dim=1)[0].detach().numpy()
+        activation /= activation.max()
+        activation = cmap(activation)
+        activation = np.delete(activation, 3, 2) # deletes 4th channel created by cmap
+        activation = imresize(activation, [66, 200])
+        plt.imshow(activation)
+        plt.show()
+
+
+def compute_saliency(outputs, inputs, high_level_controls):
     loss = outputs[high_level_controls][0][0] # steer prediction
     loss.backward()
 
@@ -58,8 +77,7 @@ def main():
         plt.imshow(saliency[i], cmap=plt.cm.hot)
         plt.axis('off')
         plt.gcf().set_size_inches(12, 5)
-
-
     plt.show()
+
 if __name__ == '__main__':
     main()

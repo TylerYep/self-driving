@@ -77,7 +77,7 @@ def telemetry(sid, data):
 
     # if np.abs(throttle) < 0.1:
     #     throttle = 0.0
-    if np.abs(steering_angle) < 0.06:
+    if np.abs(steering_angle) < 0.1:
         steering_angle = 0.0
     # if np.abs(steering_angle) > 2.0: # 3.0
     #     throttle = 0.0

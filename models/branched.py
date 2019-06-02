@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
-from .layers import FC, ResNet34, Branch, Conv2dReluDropout
+from layers import FC, ResNet34, Branch, Conv2dReluDropout, ResNet18
 
 class BranchedNvidia(nn.Module):
     def __init__(self):
@@ -43,6 +43,22 @@ class BranchedNvidia(nn.Module):
         output_branches = self.branches(x)
         return output_branches
 
+    def forward_with_activations(self, x, measurements):
+        N, H, W, C = x.shape
+        x = x.reshape((N, C, H, W))
+
+        # We omit the normalization layer proposed in Bojarski et al.
+        first_activation = self.conv1(x)
+        second_activation = self.conv2(first_activation)
+        third_activation = self.conv3(second_activation)
+        x = self.conv4(third_activation) # output shape (N, 64, 3, 20)
+        x = self.conv5(x) # output shape (N, 64, 1, 18)
+
+        # Flatten layer before FC layers
+        x = x.reshape(N, -1)
+        output_branches = self.branches(x)
+        return output_branches, [first_activation, second_activation, third_activation]
+
 
 class BranchedCOIL(nn.Module):
     def __init__(self):
@@ -69,10 +85,35 @@ class BranchedCOIL(nn.Module):
         output_branches = self.branches(x)
         return output_branches
 
+class BranchedCOIL_ResNet18(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.resnet18 = ResNet18(pretrained=True)
+        num_branches = 3
+        branch_fc_list = []
+        for i in range(num_branches):
+            branch = nn.Sequential(FC(512, 256, drop_prob=0.0),
+                                   FC(256, 256, drop_prob=0.5),
+                                   nn.Linear(256, 2))
+            branch_fc_list.append(branch)
+        self.branches = Branch(branch_fc_list)
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
+                nn.init.constant_(m.bias, 0.1)
+
+    def forward(self, x, measurements):
+        N, H, W, C = x.shape
+        x = x.reshape((N, C, H, W))
+        x = self.resnet18(x)
+        x = x.reshape(N, -1)
+        output_branches = self.branches(x)
+        return output_branches
+
 
 if __name__ == '__main__':
     data = torch.zeros((32, 66, 200, 3)).float()
     cond_features = torch.zeros((32, 4, 1))
-    model = BranchedNvidia()
+    model = BranchedCOIL_ResNet18()
     out = model(data, cond_features)
-    print(out)
+    #print(out)

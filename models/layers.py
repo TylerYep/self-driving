@@ -50,7 +50,21 @@ class ResNet34(nn.Module):
     """
     def __init__(self, pretrained=False):
         super().__init__()
-        original_model = models.resnet34(pretrained=True)
+        original_model = models.resnet34(pretrained=pretrained)
+        self.features = nn.Sequential(*list(original_model.children())[:-1])
+
+    def forward(self, x):
+        x = self.features(x)
+        return x
+
+class ResNet18(nn.Module):
+    """
+    Constructs a ResNet-18 model.
+    Returns a resnet model optionally pre-trained on ImageNet
+    """
+    def __init__(self, pretrained=False):
+        super().__init__()
+        original_model = models.resnet18(pretrained=pretrained)
         self.features = nn.Sequential(*list(original_model.children())[:-1])
 
     def forward(self, x):
