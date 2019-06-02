@@ -1,4 +1,4 @@
-RUN_ON_GPU = False
+RUN_ON_GPU = True
 """
 Configuration and hyperparameters
 """
@@ -10,11 +10,11 @@ np.random.seed(0)
 torch.manual_seed(0)
 
 SAVE_PATH = 'save/'
-LOG_PATH = SAVE_PATH + util.get_run_name()
+LOG_PATH = SAVE_PATH + util.get_run_name() + '/'
 MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL', 'BranchedNvidia']
 
 ''' --- Config Settings --- '''
-DATA_PATH = 'data/'
+DATA_PATH = 'slow_data/'
 CURR_MODEL = MODELS[3]
 AUGMENT_DATA = (CURR_MODEL == 'NaiveConditionedCNN')
 MODEL_WEIGHTS = SAVE_PATH + 'test_weights_200.pth' # 60 was p good on both, 0.0 at zero help, 100 even better
