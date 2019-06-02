@@ -68,7 +68,7 @@ def telemetry(sid, data):
 
     steering_angle = None
     throttle = None
-    if const.CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia'):
+    if const.CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
         steering_angle = float(outputs[high_level_control][:, 0])
         throttle = float(outputs[high_level_control][:, 1])
     else:
