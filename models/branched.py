@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
-from layers import FC, ResNet34, Branch, Conv2dReluDropout, ResNet18
+from .layers import FC, ResNet34, Branch, Conv2dReluDropout, ResNet18
 
 class BranchedNvidia(nn.Module):
     def __init__(self):
