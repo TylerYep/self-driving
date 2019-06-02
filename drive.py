@@ -68,7 +68,7 @@ def telemetry(sid, data):
 
     steering_angle = None
     throttle = None
-    if const.CURR_MODEL == 'BranchedCOIL':
+    if const.CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia'):
         steering_angle = float(outputs[high_level_control][:, 0])
         throttle = float(outputs[high_level_control][:, 1])
     else:
@@ -77,7 +77,7 @@ def telemetry(sid, data):
 
     # if np.abs(throttle) < 0.1:
     #     throttle = 0.0
-    if np.abs(steering_angle) < 0.01:
+    if np.abs(steering_angle) < 0.06:
         steering_angle = 0.0
     # if np.abs(steering_angle) > 2.0: # 3.0
     #     throttle = 0.0
