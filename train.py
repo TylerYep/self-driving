@@ -68,7 +68,7 @@ def train_model(dataloaders, model, criterion, optimizer, num_epochs=1):
                 outputs = model(inputs, measurements)
 
                 loss = None
-                if const.CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia'):
+                if const.CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
                     # only used for branched architecture
                     high_level_control_masks = loss_utils.compute_branch_masks(high_level_controls, num_targets=2)
                     loss = criterion(outputs, labels, high_level_control_masks) # only pass in masks for branched architecture
