@@ -30,7 +30,7 @@ def main():
 
     model = Model(const.CURR_MODEL)
     criterion = None
-    if const.CURR_MODEL == 'BranchedCOIL':
+    if const.CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia'):
         criterion = loss_utils.branched_l2_loss
     else:
         criterion = nn.MSELoss()

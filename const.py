@@ -11,11 +11,11 @@ torch.manual_seed(0)
 
 SAVE_PATH = 'save/'
 LOG_PATH = SAVE_PATH + util.get_run_name()
-MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL']
+MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL', 'BranchedNvidia']
 
 ''' --- Config Settings --- '''
 DATA_PATH = 'data/'
-CURR_MODEL = MODELS[0]
+CURR_MODEL = MODELS[3]
 AUGMENT_DATA = (CURR_MODEL == 'NaiveConditionedCNN')
 MODEL_WEIGHTS = SAVE_PATH + 'test_weights_200.pth' # 60 was p good on both, 0.0 at zero help, 100 even better
 if RUN_ON_GPU:

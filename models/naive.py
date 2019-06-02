@@ -28,7 +28,7 @@ class NaiveConditionedCNN(nn.Module):
         self.cond_FC1 = FC(input_size=4, output_size=2, drop_prob=0.0)
 
 
-    def forward(self, x, measurements) -> torch.Tensor:
+    def forward(self, x, measurements):
         '''
         param x: shape (N, 66, 200, 3) (N, H, W, C)
         '''
