@@ -1,0 +1,2 @@
+C/weights_100.pth - delta_correction=0.15, steer_min = 0.1, relatively stable but requires anticipation
+
