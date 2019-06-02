@@ -1,7 +1,7 @@
 import sys
 from .naive import NaiveConditionedCNN
 from .resnet import PretrainedResNet
-from .branched import BranchedCOIL, BranchedNvidia
+from .branched import BranchedCOIL, BranchedNvidia, BranchedCOIL_ResNet18
 
 def Model(model_name):
     ''' Retrieves class initializer from its string name. '''
