@@ -20,7 +20,7 @@ def main():
 
     # obtain inputs and labels
     BATCH_SIZE = 1
-    NUM_SHUFFLES = 1
+    NUM_SHUFFLES = 3
     train_dataset = DrivingDataset(const.TRAIN_DRIVING_LOG_PATH)
     train_dataloader = data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
     inputs, measurements, labels, high_level_controls = next(iter(train_dataloader))
@@ -44,19 +44,8 @@ def main():
     compute_activations(model, inputs, measurements, high_level_controls)
 
 def compute_activations(model, inputs, measurements, high_level_controls):
-    #outputs, activations = model.forward_with_activations(inputs, measurements)
-
-    N, H, W, C = inputs.shape
-    inputs = inputs.permute(0, 3, 1, 2)
-    new_classifier = nn.Sequential(*list(model.children())[:1])
-    new_model = new_classifier
-
-    activation = model.resnet18.features[0:4](inputs)
-
-    #activation = new_model(inputs)
-    activations = [activation]
+    outputs, activations = model.forward_with_activations(inputs, measurements)
     
-
     cmap = plt.get_cmap('inferno')
     for activation in activations:
         activation = torch.abs(activation).mean(dim=1)[0].detach().numpy()
