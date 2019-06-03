@@ -15,7 +15,7 @@ MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL', 'BranchedNv
 
 ''' --- Config Settings --- '''
 DATA_PATH = 'slow_data/'
-CURR_MODEL = MODELS[4]
+CURR_MODEL = MODELS[3]
 AUGMENT_DATA = (CURR_MODEL == 'NaiveConditionedCNN')
 MODEL_WEIGHTS = SAVE_PATH + 'weights_100.pth' # 60 was p good on both, 0.0 at zero help, 100 even better
 if RUN_ON_GPU:

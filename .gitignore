@@ -1,7 +1,6 @@
 .DS_Store
 *data/
 save/
-pytorch-cnn-visualizations/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
