@@ -104,7 +104,7 @@ class BranchedCOIL_ResNet18(nn.Module):
 
     def forward(self, x, measurements):
         N, H, W, C = x.shape
-        x = x.permute((0, 3, 1, 2))
+        x = x.permute(0, 3, 1, 2)
         x = self.resnet18(x)
         x = x.reshape(N, -1)
         output_branches = self.branches(x)
