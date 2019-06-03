@@ -1,5 +1,6 @@
 import torch
 import torch.utils.data as data
+import torch.nn as nn
 from models import Model
 import matplotlib.pyplot as plt
 import const
@@ -19,7 +20,7 @@ def main():
 
     # obtain inputs and labels
     BATCH_SIZE = 1
-    NUM_SHUFFLES = 15
+    NUM_SHUFFLES = 1
     train_dataset = DrivingDataset(const.TRAIN_DRIVING_LOG_PATH)
     train_dataloader = data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
     inputs, measurements, labels, high_level_controls = next(iter(train_dataloader))
@@ -43,7 +44,19 @@ def main():
     compute_activations(model, inputs, measurements, high_level_controls)
 
 def compute_activations(model, inputs, measurements, high_level_controls):
-    outputs, activations = model.forward_with_activations(inputs, measurements)
+    #outputs, activations = model.forward_with_activations(inputs, measurements)
+
+    N, H, W, C = inputs.shape
+    inputs = inputs.permute(0, 3, 1, 2)
+    new_classifier = nn.Sequential(*list(model.children())[:1])
+    new_model = new_classifier
+
+    activation = model.resnet18.features[0:4](inputs)
+
+    #activation = new_model(inputs)
+    activations = [activation]
+    
+
     cmap = plt.get_cmap('inferno')
     for activation in activations:
         activation = torch.abs(activation).mean(dim=1)[0].detach().numpy()
@@ -74,7 +87,7 @@ def compute_saliency(outputs, inputs, high_level_controls):
         plt.axis('off')
         plt.title(const.CONTROLS[int(high_level_controls[i].numpy())])
         plt.subplot(2, N, N + i + 1)
-        plt.imshow(saliency[i], cmap=plt.cm.hot)
+        plt.imshow(saliency[i], cmap=plt.cm.gray)
         plt.axis('off')
         plt.gcf().set_size_inches(12, 5)
     plt.show()
