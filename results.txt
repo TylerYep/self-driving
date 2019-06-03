@@ -1,2 +1,5 @@
 C/weights_100.pth - delta_correction=0.15, steer_min = 0.1, relatively stable but requires anticipation
 H/weights_80.pth - delta_correction=0.15, steer_min = 0.1, relatively stable, requires less anticipation than C/weights_100.pth, can see delta_correction in action
+***Results above are before reshape vs permute issue***
+***Results below are after reshape vs permute fix***
+

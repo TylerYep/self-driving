@@ -33,7 +33,7 @@ class NaiveConditionedCNN(nn.Module):
         param x: shape (N, 66, 200, 3) (N, H, W, C)
         '''
         N, H, W, C = x.shape
-        x = x.permute((0, 3, 1, 2))
+        x = x.permute(0, 3, 1, 2)
         # We omit the normalization layer proposed in Bojarski et al.
         x = self.conv1(x)
         x = self.conv2(x)
