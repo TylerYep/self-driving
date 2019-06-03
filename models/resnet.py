@@ -31,7 +31,7 @@ class PretrainedResNet(nn.Module):
         param x: shape (N, 224, 600, 3) (N, H, W, C) (normalized)
         '''
         N, H, W, C = x.shape
-        x = x.reshape((N, C, H, W))
+        x = x.permute((0, 3, 1, 2))
         x = self.resnet18_features(x)
         x = x.reshape(N, -1)
         x = self.FC0(x)
