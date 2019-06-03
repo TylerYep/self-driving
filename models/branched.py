@@ -124,10 +124,15 @@ class BranchedCOIL_ResNet18(nn.Module):
         return output_branches, [first_activation, second_activation, third_activation, fourth_activation]
 
 
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 if __name__ == '__main__':
     data = torch.zeros((32, 66, 200, 3)).float()
     cond_features = torch.zeros((32, 4, 1))
     model = BranchedCOIL_ResNet18()
+
+    #print(count_parameters(model))
+
     out = model(data, cond_features)
     #print(out)
