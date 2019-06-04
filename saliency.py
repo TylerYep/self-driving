@@ -19,8 +19,8 @@ def main():
     model.eval()
 
     # obtain inputs and labels
-    BATCH_SIZE = 1
-    NUM_SHUFFLES = 1
+    BATCH_SIZE = 3
+    NUM_SHUFFLES = 23
     train_dataset = DrivingDataset(const.TRAIN_DRIVING_LOG_PATH)
     train_dataloader = data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=8)
     inputs, measurements, labels, high_level_controls = next(iter(train_dataloader))
@@ -40,41 +40,55 @@ def main():
 
     outputs = model(inputs, measurements)
 
-    compute_saliency(outputs, inputs, high_level_controls)
+    #compute_saliency(outputs, inputs, high_level_controls)
     compute_activations(model, inputs, measurements, high_level_controls)
 
 def compute_activations(model, inputs, measurements, high_level_controls):
-    #outputs, activations = model.forward_with_activations(inputs, measurements)
-
-    N, H, W, C = inputs.shape
-    inputs = inputs.permute(0, 3, 1, 2)
-    new_classifier = nn.Sequential(*list(model.children())[:1])
-    new_model = new_classifier
-
-    activation = model.resnet18.features[0:4](inputs)
-
-    #activation = new_model(inputs)
-    activations = [activation]
-    
-
+    outputs, activations = model.forward_with_activations(inputs, measurements)
     cmap = plt.get_cmap('inferno')
-    for activation in activations:
+    '''for activation in activations:
         activation = torch.abs(activation).mean(dim=1)[0].detach().numpy()
         activation /= activation.max()
         activation = cmap(activation)
         activation = np.delete(activation, 3, 2) # deletes 4th channel created by cmap
         activation = imresize(activation, [66, 200])
         plt.imshow(activation)
-        plt.show()
+        plt.show()'''
+
+    N = inputs.shape[0]
+    inputs = inputs.detach().numpy()
+    for i in range(N):
+        plt.subplot(2, N, i+1)
+        original = cv2.cvtColor(np.asarray(inputs[i]).astype('uint8'), code=cv2.COLOR_BGR2RGB)
+        plt.imshow(original) 
+        plt.axis('off')
+        #plt.title('Input Images & First layer activations')
+        plt.subplot(2, N, N + i + 1)
+        activation = activations[0]
+        activation = torch.abs(activation).mean(dim=1)[i].detach().numpy()
+        activation /= activation.max()
+        activation = cmap(activation)
+        activation = np.delete(activation, 3, 2) # deletes 4th channel created by cmap
+        activation = imresize(activation, [66, 200])
+        plt.imshow(activation)
+        #plt.imshow(activation[i], cmap=plt.cm.inferno)
+        plt.axis('off')
+        plt.gcf().set_size_inches(12, 5)
+    plt.show()
 
 
 def compute_saliency(outputs, inputs, high_level_controls):
     loss = outputs[high_level_controls][0][0] # steer prediction
     loss.backward()
 
-    saliency = inputs.grad.data.abs()
+    saliency = inputs.grad.data
+    #saliency = -saliency # only for left turn
+    saliency = saliency.abs()
+    #saliency[saliency < 0] = 0
+
     saliency, index = torch.max(saliency, dim=3) # dim 3 is the channel dimension
 
+   
     # Display saliency maps
     #plt.figure(2), plt.imshow(cv2.cvtColor(np.asarray(saliency[0]).astype('uint8'), code=cv2.COLOR_BGR2RGB))
     saliency = saliency.numpy()

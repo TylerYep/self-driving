@@ -110,10 +110,29 @@ class BranchedCOIL_ResNet18(nn.Module):
         output_branches = self.branches(x)
         return output_branches
 
+    def forward_with_activations(self, x, measurements):
+        N, H, W, C = x.shape
+        x = x.permute(0, 3, 1, 2)
+
+        first_activation = self.resnet18.features[0:4](x)
+        second_activation = self.resnet18.features[0:5](x)
+        third_activation = self.resnet18.features[0:6](x)
+        fourth_activation = self.resnet18.features[0:7](x)
+        x = self.resnet18(x)
+        x = x.reshape(N, -1)
+        output_branches = self.branches(x)
+        return output_branches, [first_activation, second_activation, third_activation, fourth_activation]
+
+
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 if __name__ == '__main__':
     data = torch.zeros((32, 66, 200, 3)).float()
     cond_features = torch.zeros((32, 4, 1))
     model = BranchedCOIL_ResNet18()
+
+    #print(count_parameters(model))
+
     out = model(data, cond_features)
     #print(out)
