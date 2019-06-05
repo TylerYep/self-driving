@@ -11,13 +11,14 @@ torch.manual_seed(0)
 
 SAVE_PATH = 'save/'
 LOG_PATH = SAVE_PATH + util.get_run_name() + '/'
-MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18']
+MODELS = ['NaiveConditionedCNN', 'PretrainedResNet', 'BranchedCOIL',
+          'BranchedNvidia', 'BranchedCOIL_ResNet18']
 
 ''' --- Config Settings --- '''
-DATA_PATH = 'slow_data/'
-CURR_MODEL = MODELS[3]
+DATA_PATH = 'data/'
+CURR_MODEL = MODELS[0]
 AUGMENT_DATA = (CURR_MODEL == 'NaiveConditionedCNN')
-MODEL_WEIGHTS = SAVE_PATH + 'weights_80.pth' # 60 was p good on both, 0.0 at zero help, 100 even better
+MODEL_WEIGHTS = SAVE_PATH + 'final_completion_lake_track_nvidia.pth'
 if RUN_ON_GPU:
     EPOCHS = 1000
     SAVE_EVERY = 5
