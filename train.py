@@ -33,7 +33,7 @@ def main():
     if const.CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
         criterion = loss_utils.branched_l2_loss
     else:
-        criterion = nn.MSELoss()
+        criterion = loss_utils.l2_loss
 
     optimizer = optim.Adam(model.parameters(), lr=3e-4)
 

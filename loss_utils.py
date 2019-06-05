@@ -20,4 +20,6 @@ def branched_l2_loss(branches, targets, masks):
 		loss_branches.append(((branches[i] - targets)**2) * masks[i])
 	return torch.sum(torch.cat(loss_branches)) / branches[0].shape[0] # Take mean over batch size
 
+def l2_loss(outputs, targets):
+	return torch.sum((outputs - targets)**2) / outputs.shape[0]
 
