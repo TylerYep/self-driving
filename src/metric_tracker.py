@@ -1,77 +1,86 @@
 from typing import Any, Dict
 from types import SimpleNamespace
 from enum import Enum, unique
+import os
+import json
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-from src.metrics import get_metric
+from src import util
+from src.metrics import get_metric_initializer
 from src.dataset import CLASS_LABELS
 
 
 @unique
 class Mode(Enum):
-    TRAIN = 'Train'
-    VAL = 'Val'
-    TEST = 'Test'
-
-
-# Adding metrics here will automatically search the metrics/ folder for an implementation.
-METRIC_NAMES = ['Loss']
+    TRAIN, VAL, TEST = 'Train', 'Val', 'Test'
 
 
 class MetricTracker:
-    def __init__(self,
-                 run_name,
-                 log_interval,
-                 epoch=0,
-                 num_batches=0,
-                 metric_data=None,
-                 best_metric=None):
-        assert METRIC_NAMES
-        self.writer = SummaryWriter(run_name)
-        self.epoch = epoch
-        self.log_interval = log_interval
-        self.num_batches = num_batches
-        self.metric_names = METRIC_NAMES
-        self.primary_metric = self.metric_names[0]
-        self.metric_data = metric_data if metric_data else \
-                           {name: get_metric(name)() for name in self.metric_names}
-        self.best_metric = best_metric if best_metric else \
-                           self.metric_data[self.primary_metric].init_val
+    def __init__(self, args, checkpoint):
+        assert args.metrics
+        self.run_name, self.writer = None, None
+        if not args.no_save:
+            self.run_name = checkpoint.get('run_name', util.get_run_name(args))
+            self.writer = SummaryWriter(self.run_name)
+            print(f'Storing checkpoints in: {self.run_name}\n')
+            with open(os.path.join(self.run_name, 'args.json'), 'w') as f:
+                json.dump(args.__dict__, f, indent=4)
+
+        metric_checkpoint = checkpoint.get('metric_obj', {})
+        self.epoch = metric_checkpoint.get('epoch', 0)
+        self.is_best = metric_checkpoint.get('is_best', True)
+        self.metric_data = metric_checkpoint.get('metric_data', self.init_metrics(args.metrics))
+        self.primary_metric = metric_checkpoint.get('primary_metric', args.metrics[0])
+        self.end_epoch = self.epoch + args.epochs
+        self.args = args
+
+    @staticmethod
+    def init_metrics(metric_names):
+        return {name: get_metric_initializer(name)() for name in metric_names}
 
     def json_repr(self) -> Dict[str, Any]:
-        return {'epoch': self.epoch,
-                'metric_data': self.metric_data,
-                'num_batches': self.num_batches,
-                'best_metric': self.best_metric}
+        return {
+            'epoch': self.epoch,
+            'metric_data': self.metric_data,
+            'primary_metric': self.primary_metric,
+            'is_best': self.is_best
+        }
 
     def __getattr__(self, name):
         return self.metric_data[name]
 
-    def add_network(self, model, loader):
-        data, _ = next(iter(loader))
-        self.writer.add_graph(model, data)
+    def __eq__(self, other):
+        for metric in self.metric_data:
+            if metric not in other.metric_data or \
+                    self.metric_data[metric] != other.metric_data[metric]:
+                return False
+        return True
 
-    def update_best_metric(self, val_loss) -> bool:
-        is_best = val_loss < self.best_metric
-        self.best_metric = min(val_loss, self.best_metric)
-        return is_best
+    def add_network(self, model, loader):
+        if self.run_name is not None:
+            data, _ = next(loader)
+            self.writer.add_graph(model, data)
 
     def write(self, title: str, val: float, step_num: int):
-        self.writer.add_scalar(title, val, step_num)
+        if self.run_name is not None:
+            self.writer.add_scalar(title, val, step_num)
 
     def next_epoch(self):
         self.epoch += 1
+        print(f'Epoch [{self.epoch}/{self.end_epoch}]')
 
-    def set_num_batches(self, num_batches: int):
-        self.num_batches = num_batches
+    def get_primary_value(self):
+        return self.metric_data[self.primary_metric].value
 
-    def reset_all(self):
-        for metric in self.metric_data:
-            self.metric_data[metric].reset()
+    def set_primary_metric(self, mode, ret_val):
+        if mode == Mode.VAL:
+            self.is_best = ret_val < self.get_primary_value()
+            if self.is_best:
+                self.metric_data[self.primary_metric].value = ret_val
 
     def reset_hard(self):
-        self.metric_data = {name: get_metric(name)() for name in self.metric_names}
+        self.metric_data = self.init_metrics(self.metric_data.keys())
 
     def update_all(self, val_dict):
         ret_dict = {}
@@ -80,47 +89,49 @@ class MetricTracker:
             ret_dict[metric] = metric_obj.get_epoch_result()
         return ret_dict
 
-    def write_all(self, num_steps, mode, batch_size):
+    def write_batch(self, num_steps, batch_size):
         for metric, metric_obj in self.metric_data.items():
-            batch_result = metric_obj.get_batch_result(self.log_interval, batch_size)
-            self.write(f'{mode}_Batch_{metric}', batch_result, num_steps)
+            batch_result = metric_obj.get_batch_result(batch_size, self.args.log_interval)
+            self.write(f'{Mode.TRAIN}_Batch_{metric}', batch_result, num_steps)
 
-    def add_images(self, val_dict, num_steps):
-        pass
-        # data, output, target = val_dict.data, val_dict.output, val_dict.target
-        # for j in range(output.shape[0]):
-        #     _, pred_ind = torch.max(output.detach()[j], dim=0)
-        #     target_ind = int(target.detach()[j])
-        #     pred_class = CLASS_LABELS[pred_ind]
-        #     target_class = CLASS_LABELS[target_ind]
-        #     self.writer.add_image(f'{target_class}/Predicted_{pred_class}', data[j], num_steps)
+    def batch_update(self, i, num_batches, batch_size, data, loss, output, target, mode):
+        assert torch.isfinite(loss).all(), 'The loss returned in training is NaN or inf.'
 
-    def batch_update(self, i, data, loss, output, target, mode):
-        data = data[0]
-        batch_size = data.shape[0]
         names = ('data', 'loss', 'output', 'target', 'batch_size')
         variables = (data, loss, output, target, batch_size)
         val_dict = SimpleNamespace(**dict(zip(names, variables)))
-
         tqdm_dict = self.update_all(val_dict)
-        num_steps = (self.epoch - 1) * self.num_batches + i
-        if mode == Mode.TRAIN and i % self.log_interval == 0:
-            if i > 0:
-                self.write_all(num_steps, mode, batch_size)
-            self.reset_all()
-        elif mode == Mode.VAL:
+        num_steps = (self.epoch - 1) * num_batches + i
+
+        # Only reset batch statistics after log_interval batches
+        if i > 0 and i % self.args.log_interval == 0:
+            if mode == Mode.TRAIN:
+                self.write_batch(num_steps, batch_size)
+            for metric in self.metric_data.values():
+                metric.reset()
+
+        if mode == Mode.VAL and not self.args.no_visualize:
             if len(data.size()) == 4:  # (N, C, H, W)
                 self.add_images(val_dict, num_steps)
         return tqdm_dict
 
-    def get_epoch_results(self, mode) -> float:
-        result_str = ''
+    def epoch_update(self, mode):
+        result_str = f'{mode} '
         for metric, metric_obj in self.metric_data.items():
             epoch_result = metric_obj.get_epoch_result()
-            result_str += f'{metric_obj.formatted(epoch_result)} '
             self.write(f'{mode}_Epoch_{metric}', epoch_result, self.epoch)
+            if metric == self.primary_metric:
+                self.set_primary_metric(mode, epoch_result)
+            metric_obj.value = epoch_result
+            result_str += str(metric_obj) + ' '
+        print(result_str)
 
-        print(f'{mode} {result_str}')
-        ret_val = self.metric_data[self.primary_metric].get_epoch_result()
-        self.reset_hard()
-        return ret_val
+    def add_images(self, val_dict, num_steps):
+        if self.run_name is not None:
+            data, output, target = val_dict.data, val_dict.output, val_dict.target
+            for j in range(output.shape[0]):
+                _, pred_ind = torch.max(output.detach()[j], dim=0)
+                target_ind = int(target.detach()[j])
+                pred_class = CLASS_LABELS[pred_ind]
+                target_class = CLASS_LABELS[target_ind]
+                self.writer.add_image(f'{target_class}/Predicted_{pred_class}', data[j], num_steps)

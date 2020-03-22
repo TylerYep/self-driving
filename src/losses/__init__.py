@@ -12,9 +12,9 @@ from .loss_utils import L2Loss, BranchedL2Loss
 
 def get_loss_initializer(loss_fn):
     ''' Retrieves class initializer from its string name. '''
-    if loss_fn == 'nn.CrossEntropyLoss()':
+    if loss_fn == 'nn.CrossEntropyLoss':
         return nn.CrossEntropyLoss
-    if loss_fn == 'F.nll_loss':
+    if loss_fn in ('F.nll_loss', 'nn.NLLLoss'):
         return nn.NLLLoss
     assert hasattr(sys.modules[__name__], loss_fn), \
         f'Metric {loss_fn} not found in metrics folder.'

@@ -1,7 +1,7 @@
 import sys
 import warnings
-import torch
 import torchsummary
+import torch
 
 if 'google.colab' in sys.modules:
     from tqdm import tqdm_notebook as tqdm
@@ -9,18 +9,31 @@ else:
     from tqdm import tqdm
 
 
-def verify_model(model, loader, optimizer, criterion, device):
+def verify_model(model, loader, optimizer, criterion, device, batch_dim):
     """
     Performs all necessary validation on your model to ensure correctness.
     You may need to change the batch_size or max_iters in overfit_example
     in order to overfit the batch.
     """
-    torchsummary.summary(model, model.input_shape)
+    model_summary(model, loader, batch_dim)
     check_batch_dimension(model, loader, optimizer)
-    # overfit_example(model, loader, optimizer, criterion, device)
-    # check_all_layers_training(model, loader, optimizer, criterion)
-    # detect_NaN_tensors(model)
+    overfit_example(model, loader, optimizer, criterion, device, batch_dim)
+    check_all_layers_training(model, loader, optimizer, criterion)
+    detect_NaN_tensors(model)
     print('Verification complete - all tests passed!')
+
+
+def model_summary(model, loader, batch_dim):
+    """
+    Prints out model using torchsummary.
+    """
+    if hasattr(model, 'input_shape'):
+        data, _ = next(loader)
+        dtypes = [tensor.dtype for tensor in data] if isinstance(data, (list, tuple)) else None
+        torchsummary.summary(model, model.input_shape, batch_dim=batch_dim, dtypes=dtypes)
+    else:
+        warnings.warn("Model should have input_shape as an attribute "
+                      "for torchsummary to work correctly.", RuntimeWarning)
 
 
 def check_batch_dimension(model, loader, optimizer, test_val=2):
@@ -33,29 +46,42 @@ def check_batch_dimension(model, loader, optimizer, test_val=2):
     """
     model.eval()
     torch.set_grad_enabled(True)
-    data, _ = next(iter(loader))
+    data, _ = next(loader)
     optimizer.zero_grad()
-    data[0].requires_grad_()
 
-    output = model(*data) if isinstance(data, (list, tuple)) else model(data)
-    loss = output[test_val].sum()
-    loss.backward()
+    if not isinstance(data, (list, tuple)):
+        data.requires_grad_()
+        output = model(data)
+        loss = output[test_val].sum()
+        loss.backward()
 
-    print(data[0].grad)
-    assert loss != 0, "Loss is not exactly zero."
-    assert (data[0].grad[test_val] != 0).any(), "The gradient of the test input is not nonzero."
-    assert (data[0].grad[:test_val] == 0.).all() and (data[0].grad[test_val+1:] == 0.).all(), \
-        "All other inputs in the batch are not zero."
+        assert loss != 0, "Loss should be greater than zero."
+        assert (data.grad[test_val] != 0).any(), "The gradient of the test input is not nonzero."
+        assert (data.grad[:test_val] == 0.).all() and (data.grad[test_val+1:] == 0.).all(), \
+            "There are nonzero gradients in the batch, when they should all be zero."
 
 
-def overfit_example(model, loader, optimizer, criterion, device, batch_size=5, max_iters=50):
+def overfit_example(model, loader, optimizer, criterion, device,
+                    batch_dim=0, batch_size=2, max_iters=50):
     """
     Verifies that the provided model can overfit a single batch or example.
     """
+    def batch_slice(input_data, batch_size, batch_dim):
+        if isinstance(input_data, (list, tuple)):
+            return [batch_slice(data, batch_size, batch_dim) for data in input_data]
+        if input_data.ndim == 1:
+            return input_data[:batch_size]
+        none_slice = (slice(None),)
+        batch_dim_slice = none_slice * batch_dim + (slice(batch_size, ),) \
+            + none_slice * (input_data.ndim - batch_dim - 1)
+        return input_data[batch_dim_slice]
+
     model.eval()
     torch.set_grad_enabled(True)
-    data, target = next(iter(loader))
-    data, target = data[:batch_size], target[:batch_size]
+    data, target = next(loader)
+    data = batch_slice(data, batch_size, batch_dim)
+    target = batch_slice(target, batch_size, batch_dim)
+
     with tqdm(desc='Verify Model', total=max_iters, ncols=120) as pbar:
         for _ in range(max_iters):
             optimizer.zero_grad()
@@ -69,20 +95,14 @@ def overfit_example(model, loader, optimizer, criterion, device, batch_size=5, m
             pbar.update()
 
     if not torch.allclose(loss, torch.tensor(0.).to(device)):
-        warnings.warn(f"Overfit Loss is not sufficiently close to 0: {loss}"
+        warnings.warn(f"\nOverfit Loss is not sufficiently close to 0: {loss}\n"
                       f"This may indicate an error with your model.", RuntimeWarning)
-
-
-def checkNaN(weights):
-    assert not torch.isnan(weights).byte().any()
-    assert torch.isfinite(weights).byte().any()
 
 
 def detect_NaN_tensors(model):
     """
     Verifies that the provided model does not have any exploding gradients.
     """
-    # assert torch.isfinite(loss).all(), 'The loss returned in `training_step` is NaN or inf.'
     for name, param in model.named_parameters():
         assert torch.isfinite(param).all(), \
             (f'Detected NaN and/or inf values in model weights: {name}. '
@@ -95,11 +115,11 @@ def check_all_layers_training(model, loader, optimizer, criterion):
     """
     model.train()
     torch.set_grad_enabled(True)
-    data, target = next(iter(loader))
+    data, target = next(loader)
     before = [param.clone().detach() for param in model.parameters()]
 
     optimizer.zero_grad()
-    output = model(data)
+    output = model(*data) if isinstance(data, (list, tuple)) else model(data)
     loss = criterion(output, target)
     loss.backward()
     optimizer.step()

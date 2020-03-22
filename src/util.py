@@ -22,7 +22,10 @@ class Arguments:
 
 
 def json_to_args(filename):
-    with open(os.path.join(CONFIG_DIR, filename + '.json')) as f:
+    found_json = os.path.join(CONFIG_DIR, filename + '.json')
+    if not os.path.isfile(found_json):
+        found_json = os.path.join(SAVE_DIR, filename, 'args.json')
+    with open(found_json) as f:
         return Arguments(json.load(f))
 
 
@@ -34,7 +37,10 @@ def get_run_name(args: Namespace, save_dir: str = SAVE_DIR) -> str:
         return os.path.join(save_dir, args.checkpoint)
 
     if args.name:
-        return os.path.join(save_dir, args.name)
+        full_name = os.path.join(save_dir, args.name)
+        if not os.path.isdir(full_name):
+            os.makedirs(full_name)
+        return full_name
 
     dirlist = [f for f in os.listdir(save_dir) if os.path.isdir(os.path.join(save_dir, f))]
     dirlist.sort()
@@ -44,12 +50,22 @@ def get_run_name(args: Namespace, save_dir: str = SAVE_DIR) -> str:
     else:
         last_run_char = dirlist[-1][-1]
         if last_run_char == 'Z':
-            result = 'A' * (len(dirlist[-1])+1)
+            result = 'A' * (len(dirlist[-1]) + 1)
         else:
             result = dirlist[-1][:-1] + chr(ord(last_run_char) + 1)
     out_dir = os.path.join(save_dir, result)
     os.makedirs(out_dir)
     return out_dir
+
+
+def get_sample_loader(loader):
+    """ Returns a generator that outputs a single batch of data. """
+    sample_loader = iter(loader)
+    while True:
+        try:
+            yield next(sample_loader)
+        except StopIteration:
+            sample_loader = iter(loader)
 
 
 def set_rng_state(checkpoint):
@@ -59,7 +75,7 @@ def set_rng_state(checkpoint):
         torch.set_rng_state(checkpoint['torch_rng_state'])
 
 
-def save_checkpoint(state: Dict[str, Any], run_name: str, is_best: bool) -> None:
+def save_checkpoint(state: Dict[str, Any], is_best: bool, run_name: str = ''):
     """ Saves model and training parameters at checkpoint + 'last.pth.tar'.
     If is_best is True, also saves best.pth.tar
     Args:
@@ -69,6 +85,7 @@ def save_checkpoint(state: Dict[str, Any], run_name: str, is_best: bool) -> None
         is_best: (bool) True if it is the best model seen till now
     """
     print('Saving checkpoint...\n')
+    run_name = run_name if run_name else state['run_name']
     save_path = os.path.join(run_name, 'checkpoint.pth.tar')
     torch.save(state, save_path)
     if is_best:
@@ -83,7 +100,6 @@ def load_checkpoint(checkpoint_name: str, use_best: bool = False) -> Dict[str, A
     """
     if not checkpoint_name:
         return {}
-    print('Loading checkpoint...')
     load_file = 'model_best.pth.tar' if use_best else 'checkpoint.pth.tar'
     return torch.load(os.path.join(SAVE_DIR, checkpoint_name, load_file))
 
@@ -97,7 +113,8 @@ def load_state_dict(checkpoint: Dict, model: nn.Module, optimizer=None, schedule
         optimizer: (torch.optim) optional: resume optimizer from checkpoint
     """
     if checkpoint:
-        model.load_state_dict(checkpoint['state_dict'])
+        print('Loading checkpoint...')
+        model.load_state_dict(checkpoint['model_state_dict'])
         if optimizer is not None:
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         if scheduler is not None:

@@ -55,12 +55,13 @@ def get_collate_fn(device):
     return lambda x: map(to_device, default_collate(x))
 
 
-def load_train_data(args, device, num_examples=None, val_split=0.2):
+def load_train_data(args, device, val_split=0.2):
     norm = get_transforms()
     collate_fn = get_collate_fn(device)
     orig_dataset = DrivingDataset(DATA_PATH + 'driving_log.csv', transform=norm)
-    if num_examples:
-        data_split = [num_examples, num_examples, len(orig_dataset) - 2 * num_examples]
+    if args.num_examples:
+        n = args.num_examples
+        data_split = [n, n, len(orig_dataset) - 2 * n]
         train_set, val_set = random_split(orig_dataset, data_split)[:-1]
     else:
         data_split = [int(part * len(orig_dataset)) for part in (1 - val_split, val_split)]
