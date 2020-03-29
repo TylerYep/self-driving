@@ -87,7 +87,8 @@ def train(arg_list=None):
     util.set_rng_state(checkpoint)
     start_epoch = metrics.epoch + 1
     for epoch in range(start_epoch, start_epoch + args.epochs):
-        metrics.next_epoch(epoch, args.epochs)
+        print(f'Epoch [{epoch}/{start_epoch + args.epochs - 1}]')
+        metrics.next_epoch()
         train_and_validate(args, model, train_loader, optimizer, criterion, metrics, Mode.TRAIN)
         val_loss = train_and_validate(args, model, val_loader, None, criterion, metrics, Mode.VAL)
 

@@ -60,8 +60,7 @@ class MetricTracker:
     def write(self, title: str, val: float, step_num: int):
         self.writer.add_scalar(title, val, step_num)
 
-    def next_epoch(self, epoch, total_epochs):
-        print(f'Epoch [{epoch}/{self.epoch + total_epochs}]')
+    def next_epoch(self):
         self.epoch += 1
 
     def set_num_batches(self, num_batches: int):
@@ -87,13 +86,14 @@ class MetricTracker:
             self.write(f'{mode}_Batch_{metric}', batch_result, num_steps)
 
     def add_images(self, val_dict, num_steps):
-        data, output, target = val_dict.data, val_dict.output, val_dict.target
-        for j in range(output.shape[0]):
-            _, pred_ind = torch.max(output.detach()[j], dim=0)
-            target_ind = int(target.detach()[j])
-            pred_class = CLASS_LABELS[pred_ind]
-            target_class = CLASS_LABELS[target_ind]
-            self.writer.add_image(f'{target_class}/Predicted_{pred_class}', data[j], num_steps)
+        pass
+        # data, output, target = val_dict.data, val_dict.output, val_dict.target
+        # for j in range(output.shape[0]):
+        #     _, pred_ind = torch.max(output.detach()[j], dim=0)
+        #     target_ind = int(target.detach()[j])
+        #     pred_class = CLASS_LABELS[pred_ind]
+        #     target_class = CLASS_LABELS[target_ind]
+        #     self.writer.add_image(f'{target_class}/Predicted_{pred_class}', data[j], num_steps)
 
     def batch_update(self, i, data, loss, output, target, mode):
         data = data[0]
