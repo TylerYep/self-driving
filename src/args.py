@@ -42,13 +42,13 @@ def get_parsed_arguments(arg_list):
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
 
-    parser.add_argument('--loss', type=str, default='F.nll_loss', metavar='N',
+    parser.add_argument('--loss', type=str, default='L2Loss', metavar='N',
                         help='loss function to use')
 
     parser.add_argument('--lr', type=float, default=3e-3, metavar='LR',
                         help='learning rate (default: 3e-3)')
 
-    parser.add_argument('--model', type=str, default='BasicCNN', metavar='N',
+    parser.add_argument('--model', type=str, default='NaiveConditionedCNN', metavar='N',
                         help='model architecture to use')
 
     parser.add_argument('--name', type=str, default='',

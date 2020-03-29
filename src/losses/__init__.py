@@ -7,6 +7,7 @@ import torch.nn.functional as F
 from .dice import DiceLoss
 from .focal import FocalLoss
 from .mixed import MixedLoss
+from .loss_utils import L2Loss
 
 
 def get_loss_initializer(loss_fn):
@@ -17,4 +18,4 @@ def get_loss_initializer(loss_fn):
         return F.nll_loss
     assert hasattr(sys.modules[__name__], loss_fn), \
         f'Metric {loss_fn} not found in metrics folder.'
-    return getattr(sys.modules[__name__], loss_fn)
+    return getattr(sys.modules[__name__], loss_fn)()

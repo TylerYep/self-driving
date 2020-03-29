@@ -16,7 +16,7 @@ class Mode(Enum):
 
 
 # Adding metrics here will automatically search the metrics/ folder for an implementation.
-METRIC_NAMES = ['Loss', 'Accuracy']
+METRIC_NAMES = ['Loss']
 
 
 class MetricTracker:
@@ -96,6 +96,7 @@ class MetricTracker:
             self.writer.add_image(f'{target_class}/Predicted_{pred_class}', data[j], num_steps)
 
     def batch_update(self, i, data, loss, output, target, mode):
+        data = data[0]
         batch_size = data.shape[0]
         names = ('data', 'loss', 'output', 'target', 'batch_size')
         variables = (data, loss, output, target, batch_size)

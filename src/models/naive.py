@@ -11,6 +11,7 @@ class NaiveConditionedCNN(nn.Module):
     '''
     def __init__(self):
         super().__init__()
+        self.input_shape = [(66, 200, 3), (4, 1)]
         self.conv1 = Conv2dReluDropout(filter_size=5, pad=0, stride=2, num_filters=24, in_channels=3, drop_prob=0.2)
         self.conv2 = Conv2dReluDropout(filter_size=5, pad=0, stride=2, num_filters=36, in_channels=24, drop_prob=0.2)
         self.conv3 = Conv2dReluDropout(filter_size=5, pad=0, stride=2, num_filters=48, in_channels=36, drop_prob=0.2)
@@ -34,7 +35,7 @@ class NaiveConditionedCNN(nn.Module):
         '''
         N, H, W, C = x.shape
         x = x.permute(0, 3, 1, 2)
-        
+
         # We omit the normalization layer proposed in Bojarski et al.
         x = self.conv1(x)
         x = self.conv2(x)

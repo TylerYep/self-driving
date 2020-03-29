@@ -20,6 +20,9 @@ import const
 from load_data import preprocess
 from models import Model
 
+CONTROLS = {0: 'Straight', 1: 'Left', 2: 'Right'}
+
+
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
@@ -44,10 +47,10 @@ def telemetry(sid, data):
     image_array = preprocess(frame_bgr=image_array)
 
     image_array = torch.as_tensor(image_array)
-    if const.USE_NORMALIZE:
+    if USE_NORMALIZE:
         h, w, c = image_array.shape
         image_array = image_array.reshape((c, h, w)) # reshaped for normalize function
-        image_array = const.NORMALIZE_FN(image_array)
+        image_array = NORMALIZE_FN(image_array)
         image_array = image_array.reshape((h, w, c)) # reshaped back to expected shape
 
     # add singleton batch dimension
@@ -68,7 +71,7 @@ def telemetry(sid, data):
 
     steering_angle = None
     throttle = None
-    if const.CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
+    if CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
         steering_angle = float(outputs[high_level_control][:, 0])
         throttle = float(outputs[high_level_control][:, 1])
     else:
@@ -83,7 +86,7 @@ def telemetry(sid, data):
     #     throttle = 0.0
 
     send_control(steering_angle, throttle)
-    print(steering_angle, throttle, const.CONTROLS[high_level_control])
+    print(steering_angle, throttle, CONTROLS[high_level_control])
 
 
 @sio.on('connect')
@@ -101,11 +104,11 @@ def send_control(steering_angle, throttle):
 
 if __name__ == '__main__':
     # load model weights
-    model = Model(const.CURR_MODEL)
+    model = Model(CURR_MODEL)
 
-    print('Loading weights: {}'.format(const.MODEL_WEIGHTS))
+    print('Loading weights: {}'.format(MODEL_WEIGHTS))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.load_state_dict(torch.load(const.MODEL_WEIGHTS, map_location=device))
+    model.load_state_dict(torch.load(MODEL_WEIGHTS, map_location=device))
     model.eval()
 
     # wrap Flask application with engineio's middleware

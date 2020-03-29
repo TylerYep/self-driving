@@ -31,7 +31,12 @@ def train_and_validate(args, model, loader, optimizer, criterion, metrics, mode)
             if mode == Mode.TRAIN:
                 optimizer.zero_grad()
 
-            output = model(data)
+            output = model(*data) if isinstance(data, (list, tuple)) else model(data)
+            # if model.__name__ in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
+            #     # only used for branched architecture
+            #     high_level_control_masks = loss_utils.compute_branch_masks(high_level_controls, num_targets=2)
+            #     loss = criterion(outputs, labels, high_level_control_masks) # only pass in masks for branched architecture
+            # else:
             loss = criterion(output, target)
             if mode == Mode.TRAIN:
                 loss.backward()
@@ -62,7 +67,7 @@ def load_model(args, device, checkpoint, init_params, train_loader):
     criterion = get_loss_initializer(args.loss)
     model = get_model_initializer(args.model)(*init_params).to(device)
     assert model.input_shape, 'Model should have input_shape as an attribute'
-    
+
     optimizer, scheduler = get_optimizer_schedulers(args, model)
     verify_model(model, train_loader, optimizer, criterion, device)
     util.load_state_dict(checkpoint, model, optimizer, scheduler)
@@ -75,9 +80,9 @@ def train(arg_list=None):
     model, criterion, optimizer, scheduler = load_model(args, device, checkpoint,
                                                         init_params, train_loader)
     run_name, metrics = init_metrics(args, checkpoint)
-    if args.visualize:
-        metrics.add_network(model, train_loader)
-        visualize(model, train_loader, run_name)
+    # if args.visualize:
+    #     metrics.add_network(model, train_loader)
+    #     visualize(model, train_loader, run_name)
 
     util.set_rng_state(checkpoint)
     start_epoch = metrics.epoch + 1
@@ -101,7 +106,7 @@ def train(arg_list=None):
             'metric_obj': metrics.json_repr()
         }, run_name, is_best)
 
-    if args.visualize:
-        visualize_trained(model, train_loader, run_name)
+    # if args.visualize:
+    #     visualize_trained(model, train_loader, run_name)
 
     return val_loss
