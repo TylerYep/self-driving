@@ -23,7 +23,7 @@ class MetricTracker:
     def __init__(self,
                  run_name,
                  log_interval,
-                 epoch=1,
+                 epoch=0,
                  num_batches=0,
                  metric_data=None,
                  best_metric=None):

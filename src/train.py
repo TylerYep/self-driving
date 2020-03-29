@@ -32,12 +32,13 @@ def train_and_validate(args, model, loader, optimizer, criterion, metrics, mode)
                 optimizer.zero_grad()
 
             output = model(*data) if isinstance(data, (list, tuple)) else model(data)
-            # if model.__name__ in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
-            #     # only used for branched architecture
-            #     high_level_control_masks = loss_utils.compute_branch_masks(high_level_controls, num_targets=2)
-            #     loss = criterion(outputs, labels, high_level_control_masks) # only pass in masks for branched architecture
-            # else:
-            loss = criterion(output, target)
+
+            if type(model).__name__ in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
+                _, _, high_level_control = data
+                loss = criterion(output, target, high_level_control)
+            else:
+                loss = criterion(output, target)
+
             if mode == Mode.TRAIN:
                 loss.backward()
                 optimizer.step()

@@ -7,6 +7,7 @@ from .layers import FC, ResNet34, Branch, Conv2dReluDropout, ResNet18
 class BranchedNvidia(nn.Module):
     def __init__(self):
         super().__init__()
+        self.input_shape = [(66, 200, 3), (4, 1)]
         self.conv1 = Conv2dReluDropout(filter_size=5, pad=0, stride=2, num_filters=24, in_channels=3, drop_prob=0.2)
         self.conv2 = Conv2dReluDropout(filter_size=5, pad=0, stride=2, num_filters=36, in_channels=24, drop_prob=0.2)
         self.conv3 = Conv2dReluDropout(filter_size=5, pad=0, stride=2, num_filters=48, in_channels=36, drop_prob=0.2)
@@ -63,6 +64,7 @@ class BranchedNvidia(nn.Module):
 class BranchedCOIL(nn.Module):
     def __init__(self):
         super().__init__()
+        self.input_shape = [(66, 200, 3), (4, 1)]
         self.resnet34 = ResNet34(pretrained=True)
         num_branches = 3
         branch_fc_list = []
@@ -88,6 +90,7 @@ class BranchedCOIL(nn.Module):
 class BranchedCOIL_ResNet18(nn.Module):
     def __init__(self):
         super().__init__()
+        self.input_shape = [(66, 200, 3), (4, 1)]
         self.resnet18 = ResNet18(pretrained=True)
         num_branches = 3
         branch_fc_list = []

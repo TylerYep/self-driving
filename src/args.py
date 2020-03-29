@@ -48,7 +48,7 @@ def get_parsed_arguments(arg_list):
     parser.add_argument('--lr', type=float, default=3e-3, metavar='LR',
                         help='learning rate (default: 3e-3)')
 
-    parser.add_argument('--model', type=str, default='NaiveConditionedCNN', metavar='N',
+    parser.add_argument('--model', type=str, default='BranchedCOIL_ResNet18', metavar='N',
                         help='model architecture to use')
 
     parser.add_argument('--name', type=str, default='',

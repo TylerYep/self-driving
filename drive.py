@@ -1,6 +1,5 @@
-import argparse
+import os
 import base64
-import json
 import cv2
 import numpy as np
 import socketio
@@ -8,25 +7,23 @@ import eventlet
 import eventlet.wsgi
 import time
 import torch
+import torchsummary
 
-from PIL import Image
-from PIL import ImageOps
+from PIL import Image, ImageOps
 from flask import Flask, render_template
 from io import BytesIO
-import os
-import numpy as np
 
-import const
-from load_data import preprocess
-from models import Model
+from src.dataset import preprocess, get_transforms
+from src import test
 
 CONTROLS = {0: 'Straight', 1: 'Left', 2: 'Right'}
-
+USE_NORMALIZE = False
 
 sio = socketio.Server()
 app = Flask(__name__)
 model = None
 prev_image_array = None
+
 
 @sio.on('telemetry')
 def telemetry(sid, data):
@@ -44,13 +41,13 @@ def telemetry(sid, data):
     image_array = cv2.cvtColor(np.asarray(image), code=cv2.COLOR_RGB2BGR)
 
     # perform preprocessing (crop, resize etc.)
-    image_array = preprocess(frame_bgr=image_array)
+    image_array = preprocess(image_array)
 
     image_array = torch.as_tensor(image_array)
     if USE_NORMALIZE:
         h, w, c = image_array.shape
         image_array = image_array.reshape((c, h, w)) # reshaped for normalize function
-        image_array = NORMALIZE_FN(image_array)
+        image_array = get_transforms()(image_array)
         image_array = image_array.reshape((h, w, c)) # reshaped back to expected shape
 
     # add singleton batch dimension
@@ -69,9 +66,7 @@ def telemetry(sid, data):
     # The driving model currently just outputs a constant throttle. Feel free to edit this.
     # throttle = 0.28
 
-    steering_angle = None
-    throttle = None
-    if CURR_MODEL in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
+    if type(model).__name__ in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
         steering_angle = float(outputs[high_level_control][:, 0])
         throttle = float(outputs[high_level_control][:, 1])
     else:
@@ -103,13 +98,7 @@ def send_control(steering_angle, throttle):
 
 
 if __name__ == '__main__':
-    # load model weights
-    model = Model(CURR_MODEL)
-
-    print('Loading weights: {}'.format(MODEL_WEIGHTS))
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.load_state_dict(torch.load(MODEL_WEIGHTS, map_location=device))
-    model.eval()
+    model = test()
 
     # wrap Flask application with engineio's middleware
     app = socketio.Middleware(sio, app)

@@ -50,8 +50,8 @@ RESNET_CONFIG = {
 
 
 def get_collate_fn(device):
-    bfn = lambda b: list(map(bfn, b)) if isinstance(b, (list, tuple)) else b.to(device)
-    return lambda x: map(bfn, default_collate(x))
+    to_device = lambda b: list(map(to_device, b)) if isinstance(b, (list, tuple)) else b.to(device)
+    return lambda x: map(to_device, default_collate(x))
 
 
 def load_train_data(args, device, num_examples=None, val_split=0.2):
@@ -118,6 +118,10 @@ def preprocess(frame_bgr, verbose=False):
     return frame_resized.astype('float32')
 
 
+def load_img_file(img_path):
+    return cv2.imread(os.path.join(DATA_PATH, img_path.strip()))
+
+
 class DrivingDataset(Dataset):
     ''' Uses the csv listed in py '''
     def __init__(self, csv_path, transform=None):
@@ -131,7 +135,8 @@ class DrivingDataset(Dataset):
         h, w, c = CONFIG['input_height'], CONFIG['input_width'], CONFIG['input_channels']
         X, measurements, y_steer = None, None, None
         while True:
-            ct_path, lt_path, rt_path, steer, throttle, brake, speed, high_level_control = self.data.iloc[index, :]
+            ct_path, lt_path, rt_path, steer, throttle, brake, speed, high_level_control \
+                = self.data.iloc[index, :]
 
             steer = np.float32(steer)
             throttle = np.float32(throttle)
@@ -142,13 +147,13 @@ class DrivingDataset(Dataset):
             camera = random.choice(['frontal', 'left', 'right'])
 
             if camera == 'frontal':
-                frame = preprocess(cv2.imread(os.path.join(DATA_PATH, ct_path.strip())))
+                frame = preprocess(load_img_file(ct_path))
                 steer = steer
             elif camera == 'left':
-                frame = preprocess(cv2.imread(os.path.join(DATA_PATH, lt_path.strip())))
+                frame = preprocess(load_img_file(lt_path))
                 steer = steer + delta_correction
             elif camera == 'right':
-                frame = preprocess(cv2.imread(os.path.join(DATA_PATH, rt_path.strip())))
+                frame = preprocess(load_img_file(rt_path))
                 steer = steer - delta_correction
 
             if AUGMENT_DATA:
@@ -166,11 +171,12 @@ class DrivingDataset(Dataset):
                 # if color images, randomly change brightness
                 if CONFIG['input_channels'] == 3:
                     frame = cv2.cvtColor(frame, code=cv2.COLOR_BGR2HSV)
-                    frame[:, :, 2] *= random.uniform(CONFIG['augmentation_value_min'], CONFIG['augmentation_value_max'])
+                    frame[:, :, 2] *= random.uniform(CONFIG['augmentation_value_min'],
+                                                     CONFIG['augmentation_value_max'])
                     frame[:, :, 2] = np.clip(frame[:, :, 2], a_min=0, a_max=255)
                     frame = cv2.cvtColor(frame, code=cv2.COLOR_HSV2BGR)
 
-            # This augmentation technique ensures a more even distribution of steering vs straight driving
+            # Augmentation technique ensures more even distribution of steering vs straight driving
             # check that each element in the batch meet the condition
             steer_magnitude_thresh = np.random.rand()
             if (abs(steer) + CONFIG['bias']) < steer_magnitude_thresh:
@@ -179,7 +185,8 @@ class DrivingDataset(Dataset):
                 X = torch.as_tensor(frame) # shape (h, w, c)
                 labels = torch.as_tensor([steer, throttle]) # shape (2,)
                 # y_steer = torch.as_tensor(steer).unsqueeze(0) # shape (1,)
-                measurements = np.zeros((4, 1)) # 3 index is for speed, 0-3 index is one-hot high-level control
+                # 3 index is for speed, 0-3 index is one-hot high-level control
+                measurements = np.zeros((4, 1))
                 measurements[3] = speed
                 measurements[high_level_control] = 1
                 measurements = torch.as_tensor(measurements)
