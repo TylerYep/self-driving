@@ -1,0 +1,15 @@
+{
+    "img_dim": 256,
+    "n": null,
+    "loss": "dice",
+    "model": "unet",
+    "batch_size": 128,
+    "checkpoint": "",
+    "epochs": 100,
+    "gamma": 0.7,
+    "log_interval": 20,
+    "lr": 3e-3,
+    "plot": false,
+    "test_batch_size": 128,
+    "visualize": true
+}
