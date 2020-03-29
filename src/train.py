@@ -65,7 +65,7 @@ def get_optimizer_schedulers(args, model):
 
 
 def load_model(args, device, checkpoint, init_params, train_loader):
-    criterion = get_loss_initializer(args.loss)
+    criterion = get_loss_initializer(args.loss)()
     model = get_model_initializer(args.model)(*init_params).to(device)
     assert model.input_shape, 'Model should have input_shape as an attribute'
 
