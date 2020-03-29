@@ -3,6 +3,7 @@
 save/
 data*
 !src/dataset.py
+all_data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

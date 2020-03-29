@@ -50,7 +50,8 @@ RESNET_CONFIG = {
 
 
 def get_collate_fn(device):
-    to_device = lambda b: list(map(to_device, b)) if isinstance(b, (list, tuple)) else b.to(device)
+    def to_device(b):
+        return list(map(to_device, b)) if isinstance(b, (list, tuple)) else b.to(device)
     return lambda x: map(to_device, default_collate(x))
 
 
