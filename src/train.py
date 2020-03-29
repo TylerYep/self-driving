@@ -107,7 +107,7 @@ def train(arg_list=None):
             'metric_obj': metrics.json_repr()
         }, run_name, is_best)
 
-    # if args.visualize:
-    #     visualize_trained(model, train_loader, run_name)
+    if args.visualize:
+        visualize_trained(model, train_loader, run_name)
 
     return val_loss
