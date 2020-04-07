@@ -54,7 +54,7 @@ def get_parsed_arguments(arg_list):
     parser.add_argument('--metrics', nargs='+', type=str, default=['Loss', 'Accuracy'],
                         help='metrics in metrics/ folder to use during training (space-separated)')
 
-    parser.add_argument('--model', type=str, default='BasicCNN', metavar='MODEL',
+    parser.add_argument('--model', type=str, default='BranchedNvidia', metavar='MODEL',
                         help='model architecture to use')
 
     parser.add_argument('--name', type=str, default='', metavar='NAME',

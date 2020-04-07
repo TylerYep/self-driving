@@ -1,13 +1,6 @@
 import sys
-<<<<<<< HEAD
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torchsummary
-=======
 import torchsummary
 import torch
->>>>>>> 83bb458... imported using ai-toolkit
 
 from src import util
 from src.args import init_pipeline
@@ -42,7 +35,7 @@ def test_model(test_loader, model, criterion):
 
 
 def test(arg_list=None):
-    args, device, checkpoint = init_pipeline(arglist)
+    args, device, checkpoint = init_pipeline(arg_list)
     init_params = checkpoint.get('model_init', [])
     model = get_model_initializer(args.model)(*init_params).to(device)
     util.load_state_dict(checkpoint, model)

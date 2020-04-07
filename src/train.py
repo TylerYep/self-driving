@@ -2,14 +2,8 @@ import sys
 import random
 import numpy as np
 import torch
-<<<<<<< HEAD
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-=======
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
->>>>>>> 83bb458... imported using ai-toolkit
 
 from src import util
 from src.args import init_pipeline
@@ -38,12 +32,15 @@ def train_and_validate(model, loader, optimizer, criterion, metrics, mode):
                 # If you want to freeze layers, use optimizer.zero_grad().
                 optimizer.zero_grad()
 
-            output = model(*data) if isinstance(data, (list, tuple)) else model(data)
-
-            if type(model).__name__ in ('BranchedCOIL', 'BranchedNvidia', 'BranchedCOIL_ResNet18'):
-                _, _, high_level_control = data
+            if type(model).__name__ in ('BranchedCOIL', 'BranchedCOIL_ResNet18'):
+                x, y, high_level_control = data
+                data = (x, y)
+                output = model(*data) if isinstance(data, (list, tuple)) else model(data)
                 loss = criterion(output, target, high_level_control)
             else:
+                x, y, high_level_control = data
+                data = (x, y)
+                output = model(*data) if isinstance(data, (list, tuple)) else model(data)
                 loss = criterion(output, target)
 
             if mode == Mode.TRAIN:

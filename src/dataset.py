@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 if 'google.colab' in sys.modules:
     DATA_PATH = '/content/'
 else:
-    DATA_PATH = 'lake_data/'
+    DATA_PATH = 'all_data/lake_data/'
 
 CLASS_LABELS = []
 AUGMENT_DATA = False
@@ -198,7 +198,7 @@ class DrivingDataset(Dataset):
                     X = X.reshape((h, w, c)) # reshaped back to expected shape
                 break
 
-        return (X, measurements.float()), labels # high_level_control
+        return (X, measurements.float(), high_level_control), labels
 
 
 def main():
